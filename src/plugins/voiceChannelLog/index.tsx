@@ -95,9 +95,14 @@ const vcLogs = new Map<string, VoiceChannelLogEntry[]>();
 let vcLogSubscriptions: (() => void)[] = [];
 
 export function getVcLogs(channel?: string): VoiceChannelLogEntry[] {
-    if (!channel) return []; // Dummy array to push to when no channel provided
+    if (!channel) return [];
     if (!vcLogs.has(channel)) vcLogs.set(channel, []);
     return vcLogs.get(channel) || [];
+}
+
+function addLogEntry(logEntry: VoiceChannelLogEntry, channel?: string) {
+    if (!channel) return;
+    vcLogs.set(channel, [...getVcLogs(channel), logEntry]);
 }
 
 export function vcLogSubscribe(listener: () => void) {
@@ -163,8 +168,8 @@ export default definePlugin({
                     timestamp: new Date()
                 };
 
-                getVcLogs(oldChannelId).push(logEntry);
-                getVcLogs(channelId).push(logEntry);
+                addLogEntry(logEntry, oldChannelId);
+                addLogEntry(logEntry, channelId);
                 vcLogSubscriptions.forEach(u => u());
 
                 if (!settings.store.voiceChannelChatSelf && userId === clientUserId) return;
