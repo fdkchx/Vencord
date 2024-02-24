@@ -7,10 +7,10 @@
 import { classNameFactory } from "@api/Styles";
 import { ModalCloseButton, ModalContent, ModalHeader, ModalProps, ModalRoot, ModalSize, openModal } from "@utils/modal";
 import { findByPropsLazy, findExportedComponentLazy } from "@webpack";
-import { ScrollerThin, Text, useEffect } from "@webpack/common";
+import { React, ScrollerThin, Text } from "@webpack/common";
 import { Channel } from "discord-types/general";
 
-import { getVcLogs, VoiceChannelLogEntry } from "./index";
+import { getVcLogs, vcLogSubscribe, VoiceChannelLogEntry } from "./index";
 
 const IconClasses = findByPropsLazy("icon", "acronym", "childWrapper");
 const FriendRow = findExportedComponentLazy("FriendRow");
@@ -29,7 +29,7 @@ export function openVoiceChannelLog(channel: Channel) {
 export function VoiceChannelLogModal({ channel, props }: { channel: Channel; props: ModalProps; }) {
     // [].sort((a, b) => a.type - b.type);
 
-    useEffect(() => { }, getVcLogs(channel.id));
+    React.useSyncExternalStore(vcLogSubscribe, () => getVcLogs(channel.id));
 
     return (
         <ModalRoot

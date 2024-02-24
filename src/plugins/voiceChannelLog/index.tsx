@@ -92,11 +92,19 @@ export interface VoiceChannelLogEntry {
 }
 
 const vcLogs = new Map<string, VoiceChannelLogEntry[]>();
+let vcLogSubscriptions: (() => void)[] = [];
 
 export function getVcLogs(channel?: string): VoiceChannelLogEntry[] {
     if (!channel) return []; // Dummy array to push to when no channel provided
     if (!vcLogs.has(channel)) vcLogs.set(channel, []);
     return vcLogs.get(channel) || [];
+}
+
+export function vcLogSubscribe(listener: () => void) {
+    vcLogSubscriptions = [...vcLogSubscriptions, listener];
+    return () => {
+        vcLogSubscriptions = vcLogSubscriptions.filter(l => l !== listener);
+    };
 }
 
 interface ChannelContextProps {
@@ -150,13 +158,14 @@ export default definePlugin({
 
                 const logEntry = {
                     userId,
-                    oldChannel: oldChannelId,
-                    newChannel: channelId,
+                    oldChannel: oldChannelId || null,
+                    newChannel: channelId || null,
                     timestamp: new Date()
                 };
 
                 getVcLogs(oldChannelId).push(logEntry);
                 getVcLogs(channelId).push(logEntry);
+                vcLogSubscriptions.forEach(u => u());
 
                 if (!settings.store.voiceChannelChatSelf && userId === clientUserId) return;
                 // Join / Leave
