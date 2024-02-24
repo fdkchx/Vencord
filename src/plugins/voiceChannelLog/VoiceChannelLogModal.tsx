@@ -10,7 +10,7 @@ import { findByPropsLazy, findExportedComponentLazy } from "@webpack";
 import { React, ScrollerThin, Text } from "@webpack/common";
 import { Channel } from "discord-types/general";
 
-import { getVcLogs, vcLogSubscribe, VoiceChannelLogEntry } from "./index";
+import { getVcLogs, vcLogSubscribe, VoiceChannelLogEntry } from "./logs";
 
 const IconClasses = findByPropsLazy("icon", "acronym", "childWrapper");
 const FriendRow = findExportedComponentLazy("FriendRow");

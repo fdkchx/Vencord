@@ -12,6 +12,7 @@ import { findByPropsLazy } from "@webpack";
 import { FluxDispatcher, Menu, MessageActions, MessageStore, RelationshipStore, SelectedChannelStore, UserStore } from "@webpack/common";
 import { Channel, Message, User } from "discord-types/general";
 
+import { addLogEntry } from "./logs";
 import { openVoiceChannelLog } from "./VoiceChannelLogModal";
 
 const MessageCreator = findByPropsLazy("createBotMessage");
@@ -84,34 +85,6 @@ function sendVoiceStatusMessage(channelId: string, content: string, userId: stri
     return message;
 }
 
-export interface VoiceChannelLogEntry {
-    userId: string;
-    oldChannel: string | null;
-    newChannel: string | null;
-    timestamp: Date;
-}
-
-const vcLogs = new Map<string, VoiceChannelLogEntry[]>();
-let vcLogSubscriptions: (() => void)[] = [];
-
-export function getVcLogs(channel?: string): VoiceChannelLogEntry[] {
-    if (!channel) return [];
-    if (!vcLogs.has(channel)) vcLogs.set(channel, []);
-    return vcLogs.get(channel) || [];
-}
-
-function addLogEntry(logEntry: VoiceChannelLogEntry, channel?: string) {
-    if (!channel) return;
-    vcLogs.set(channel, [...getVcLogs(channel), logEntry]);
-}
-
-export function vcLogSubscribe(listener: () => void) {
-    vcLogSubscriptions = [...vcLogSubscriptions, listener];
-    return () => {
-        vcLogSubscriptions = vcLogSubscriptions.filter(l => l !== listener);
-    };
-}
-
 interface ChannelContextProps {
     channel: Channel;
 }
@@ -131,7 +104,6 @@ const UserContextMenuPatch: NavContextMenuPatchCallback = (children, { channel }
         />
     ));
 };
-
 
 // Blatantly stolen from VcNarrator plugin
 
@@ -170,7 +142,6 @@ export default definePlugin({
 
                 addLogEntry(logEntry, oldChannelId);
                 addLogEntry(logEntry, channelId);
-                vcLogSubscriptions.forEach(u => u());
 
                 if (!settings.store.voiceChannelChatSelf && userId === clientUserId) return;
                 // Join / Leave
