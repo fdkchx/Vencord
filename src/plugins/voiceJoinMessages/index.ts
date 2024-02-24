@@ -46,26 +46,6 @@ const settings = definePluginSettings({
         description: "Comma or space separated list of friends' user IDs you want to recieve join messages from",
         default: ""
     },
-    voiceChannel: {
-        type: OptionType.BOOLEAN,
-        description: "Recieve messages in the voice channels directly",
-        default: true
-    },
-    voiceChannelChatSelf: {
-        type: OptionType.BOOLEAN,
-        description: "Log your own voice channel events in the voice channels",
-        default: true
-    },
-    voiceChannelChatSilent: {
-        type: OptionType.BOOLEAN,
-        description: "Join/leave/move messages in voice channel chats will be silent",
-        default: true
-    },
-    voiceChannelChatSilentSelf: {
-        type: OptionType.BOOLEAN,
-        description: "Join/leave/move messages in voice channel chats will be silent if you are in the voice channel",
-        default: false
-    },
     ignoreBlockedUsers: {
         type: OptionType.BOOLEAN,
         description: "Do not send messages about blocked users joining/leaving/moving voice channels",
@@ -81,20 +61,16 @@ interface VoiceState {
     userId: string;
 }
 
-function getMessageFlags(isDM: boolean, selfInChannel: boolean) {
+function getMessageFlags() {
     let flags = 1 << 6;
-    if (isDM) {
-        if (settings.store.friendDirectMessagesSilent) flags += 1 << 12;
-    } else {
-        if (selfInChannel ? settings.store.voiceChannelChatSilentSelf : settings.store.voiceChannelChatSilent) flags += 1 << 12;
-    }
+    if (settings.store.friendDirectMessagesSilent) flags += 1 << 12;
     return flags;
 }
 
-function sendVoiceStatusMessage(channelId: string, content: string, userId: string, isDM: boolean, selfInChannel: boolean): Message | null {
+function sendVoiceStatusMessage(channelId: string, content: string, userId: string): Message | null {
     if (!channelId) return null;
     const message: Message = MessageCreator.createBotMessage({ channelId, content, embeds: [] });
-    message.flags = getMessageFlags(isDM, selfInChannel);
+    message.flags = getMessageFlags();
     message.author = UserStore.getUser(userId);
     // If we try to send a message into an unloaded channel, the client-sided messages get overwritten when the channel gets loaded
     // This might be messy but It Works:tm:
@@ -166,25 +142,8 @@ export default definePlugin({
                         }
                     }
                     const dmChannelId = ChannelStore.getDMFromUserId(userId);
-                    if (dmChannelId && (selfInChannel ? settings.store.friendDirectMessagesSelf : true)) sendVoiceStatusMessage(dmChannelId, `Joined voice channel <#${channelId}>${memberListContent}`, userId, true, selfInChannel);
+                    if (dmChannelId && (selfInChannel ? settings.store.friendDirectMessagesSelf : true)) sendVoiceStatusMessage(dmChannelId, `Joined voice channel <#${channelId}>${memberListContent}`, userId);
                 }
-
-                if (settings.store.voiceChannel) {
-                    if (!settings.store.voiceChannelChatSelf && userId === clientUserId) return;
-                    // Join / Leave
-                    if ((!oldChannelId && channelId) || (oldChannelId && !channelId)) {
-                        // empty string is to make type checker shut up
-                        const targetChannelId = oldChannelId || channelId || "";
-                        const selfInChannel = SelectedChannelStore.getVoiceChannelId() === targetChannelId;
-                        sendVoiceStatusMessage(targetChannelId, `${(channelId ? "Joined" : "Left")} <#${targetChannelId}>`, userId, false, selfInChannel);
-                    }
-                    // Move between channels
-                    if (oldChannelId && channelId) {
-                        sendVoiceStatusMessage(oldChannelId, `Moved to <#${channelId}>`, userId, false, SelectedChannelStore.getVoiceChannelId() === oldChannelId);
-                        sendVoiceStatusMessage(channelId, `Moved from <#${oldChannelId}>`, userId, false, SelectedChannelStore.getVoiceChannelId() === channelId);
-                    }
-                }
-
             });
         },
     },
