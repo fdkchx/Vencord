@@ -130,12 +130,7 @@ export const channelTabsSettings = definePluginSettings({
         description: "Show notification dot for bookmarks",
         type: OptionType.BOOLEAN,
         default: true
-    },
-    enableKeybinds: {
-        description: "Enable keybinds",
-        type: OptionType.BOOLEAN,
-        default: true
-    },
+    }
 });
 
 export const { ackChannel } = findByPropsLazy("ackChannel");

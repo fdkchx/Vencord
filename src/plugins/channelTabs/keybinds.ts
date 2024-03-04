@@ -4,12 +4,9 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { findByPropsLazy } from "@webpack";
 import { NavigationRouter } from "@webpack/common";
 
 import { ChannelTabsUtils } from "./util";
-
-const KeyBinds = findByPropsLazy("JUMP_TO_GUILD", "SERVER_NEXT");
 
 export default function onKey(e: KeyboardEvent) {
     const hasCtrl = e.ctrlKey || (e.metaKey && navigator.platform.includes("Mac"));

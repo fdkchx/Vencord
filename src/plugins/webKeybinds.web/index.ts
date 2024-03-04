@@ -30,7 +30,7 @@ export default definePlugin({
     enabledByDefault: true,
 
     onKey(e: KeyboardEvent) {
-        const channelTabs = Vencord.Plugins.isPluginEnabled("ChannelTabs") && Vencord.Plugins.plugins.ChannelTabs.settings?.store;
+        const channelTabs = Vencord.Plugins.isPluginEnabled("ChannelTabs");
         const hasCtrl = e.ctrlKey || (e.metaKey && navigator.platform.includes("Mac"));
 
         if (hasCtrl) switch (e.key) {
