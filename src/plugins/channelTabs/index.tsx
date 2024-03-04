@@ -22,12 +22,12 @@ import { addContextMenuPatch, findGroupChildrenByChildId, NavContextMenuPatchCal
 import ErrorBoundary from "@components/ErrorBoundary";
 import { Devs } from "@utils/constants";
 import definePlugin from "@utils/types";
-import { ChannelStore, Menu } from "@webpack/common";
+import { ChannelStore, Menu, React } from "@webpack/common";
 import { Channel, Message } from "discord-types/general";
 
 import ChannelsTabsContainer from "./components/ChannelTabsContainer";
 import onKey from "./keybinds";
-import { BasicChannelTabsProps, channelTabsSettings as settings, ChannelTabsUtils } from "./util";
+import { channelTabsSettings as settings, ChannelTabsUtils } from "./util";
 
 const contextMenuPatch: NavContextMenuPatchCallback = (children, props) =>
     () => {
@@ -54,12 +54,19 @@ export default definePlugin({
     authors: [Devs.TheSun, Devs.TheKodeToad, Devs.keifufu, Devs.Nickyux],
     dependencies: ["ContextMenuAPI"],
     patches: [
+        // {
+        //     find: ".Routes.COLLECTIBLES_SHOP_FULLSCREEN))",
+        //     replacement: {
+        //         match: /(\?void 0:(\i)\.channelId.{0,120})\i\.Fragment,{/,
+        //         replace: "$1$self.render,{currentChannel:$2,"
+        //     }
+        // },
         // add the channel tab container at the top
         {
-            find: ".Routes.COLLECTIBLES_SHOP_FULLSCREEN))",
+            find: ".wordmarkWindows,",
             replacement: {
-                match: /(\?void 0:(\i)\.channelId.{0,120})\i\.Fragment,{/,
-                replace: "$1$self.render,{currentChannel:$2,"
+                match: /switch\(\i\)\{/,
+                replace: "return $self.renderTitleBar(); switch(null){"
             }
         },
         // ctrl click to open in new tab in inbox unread
@@ -121,15 +128,11 @@ export default definePlugin({
 
     containerHeight: 0,
 
-    render({ currentChannel, children }: {
-        currentChannel: BasicChannelTabsProps,
-        children: JSX.Element;
-    }) {
+    renderTitleBar() {
         return <>
             <ErrorBoundary>
-                <ChannelsTabsContainer {...currentChannel} />
+                <ChannelsTabsContainer />
             </ErrorBoundary>
-            {children}
         </>;
     },
 

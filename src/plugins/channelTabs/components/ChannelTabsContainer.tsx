@@ -19,12 +19,13 @@
 import { classes } from "@utils/misc";
 import { useForceUpdater } from "@utils/react";
 import { findByPropsLazy, findComponentByCodeLazy } from "@webpack";
-import { Button, ContextMenuApi, Flex, FluxDispatcher, Forms, NavigationRouter, useCallback, useEffect, useRef, UserStore, useState } from "@webpack/common";
+import { Button, ContextMenuApi, Flex, FluxDispatcher, Forms, NavigationRouter, SelectedChannelStore, SelectedGuildStore, useCallback, useEffect, useRef, UserStore, useState, useStateFromStores } from "@webpack/common";
 
-import { BasicChannelTabsProps, ChannelTabsProps, channelTabsSettings as settings, ChannelTabsUtils } from "../util";
+import { ChannelTabsProps, channelTabsSettings as settings, ChannelTabsUtils } from "../util";
 import BookmarkContainer from "./BookmarkContainer";
 import ChannelTab, { PreviewTab } from "./ChannelTab";
 import { BasicContextMenu, TabContextMenu } from "./ContextMenus";
+import WindowButtons from "./WindowButtons";
 
 const {
     closeTab, createTab, handleChannelSwitch, isTabSelected,
@@ -36,10 +37,16 @@ const { ClydeIcon } = findByPropsLazy("ClydeIcon");
 const { CompassIcon } = findByPropsLazy("CompassIcon");
 const XIcon = findComponentByCodeLazy("M18.4 4L12 10.4L5.6 4L4 5.6L10.4");
 
-const cl = (name: string) => `vc-channeltabs-${name}`;
-const clab = (name: string) => classes(cl("button"), cl("action-button"), cl(`${name}-button`), cl("hoverable"));
+export const cl = (name: string) => `vc-channeltabs-${name}`;
+export const clab = (name: string) => classes(cl("button"), cl("action-button"), cl(`${name}-button`), cl("hoverable"));
 
-export default function ChannelsTabsContainer(props: BasicChannelTabsProps) {
+export default function ChannelsTabsContainer() {
+    const props = useStateFromStores([SelectedChannelStore, SelectedGuildStore], () => {
+        return {
+            channelId: SelectedChannelStore.getChannelId(),
+            guildId: SelectedGuildStore.getGuildId() || "@me"
+        };
+    });
     const { openTabs } = ChannelTabsUtils;
     const [userId, setUserId] = useState("");
     const { showBookmarkBar, showHomeButton, showQuickSwitcher } = settings.use(["showBookmarkBar", "showHomeButton", "showQuickSwitcher"]);
@@ -94,7 +101,7 @@ export default function ChannelsTabsContainer(props: BasicChannelTabsProps) {
         <div className={cl("tab-container")}>
             {showHomeButton && <button
                 onClick={() => NavigationRouter.transitionTo("/channels/@me")}
-                className={clab("home-button")}
+                className={clab("home")}
             >
                 <ClydeIcon height={20} width={20} color="currentColor" />
             </button>}
@@ -124,7 +131,7 @@ export default function ChannelsTabsContainer(props: BasicChannelTabsProps) {
             }
             <button
                 onClick={() => createTab(props, true)}
-                className={clab("new-button")}
+                className={clab("new")}
             >
                 <PlusSmallIcon height={20} width={20} />
             </button>
@@ -138,10 +145,11 @@ export default function ChannelsTabsContainer(props: BasicChannelTabsProps) {
                     query: "",
                     queryMode: null
                 })}
-                className={clab("quick-switcher-button")}
+                className={clab("quick-switcher")}
             >
                 <CompassIcon height={20} width={20} />
             </button>}
+            {IS_VESKTOP && <WindowButtons />}
         </div >
         {showBookmarkBar && <>
             <div className={cl("separator")} />

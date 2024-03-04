@@ -68,6 +68,7 @@
 
     display: flex;
     flex-direction: column;
+    z-index: 5000;
 }
 
 .vc-channeltabs-separator {
@@ -92,6 +93,7 @@
 
 .vc-channeltabs-spacer {
     flex-grow: 1;
+    min-width: 1rem;
 }
 
 .vc-channeltabs-bookmarks {
@@ -195,9 +197,21 @@
     color: var(--interactive-normal);
 }
 
+.vc-channeltabs-close-window-button > svg {
+    margin: 2px;
+    height: 16px;
+    width: 16px;
+}
+
 .vc-channeltabs-action-button:hover svg {
     color: var(--interactive-hover);
 }
+
+.vc-channeltabs-window-buttons {
+    display: flex;
+    flex-direction: row;
+}
+
 
 .vc-channeltabs-close-button {
     height: 1rem;
@@ -274,18 +288,13 @@
 }
 
 
-/* [class*="typeWindows_"] {
-    position: absolute;
-    right: 0;
-    z-index: 100;
-    -webkit-app-region: no-drag;
+[class*="standardSidebarView_"],
+[class*="app_"] > [class*="bg_"] {
+    top: -36px;
 }
 
-[class*="typeWindows_"] > * {
-    display: none;
+[class*="app_"] > [class*="layers_"] > [class*="layer_"] {
+    top: -36px;
+    padding-top: 36px;
 }
 
-[class*="typeWindows_"] > [role="button"] {
-    display: flex;
-    z-index: 100;
-} */
