@@ -19,7 +19,7 @@
 import { classes } from "@utils/misc";
 import { useForceUpdater } from "@utils/react";
 import { findByPropsLazy, findComponentByCodeLazy } from "@webpack";
-import { Button, ContextMenuApi, Flex, FluxDispatcher, Forms, useCallback, useEffect, useRef, UserStore, useState } from "@webpack/common";
+import { Button, ContextMenuApi, Flex, FluxDispatcher, Forms, NavigationRouter, useCallback, useEffect, useRef, UserStore, useState } from "@webpack/common";
 
 import { BasicChannelTabsProps, ChannelTabsProps, channelTabsSettings as settings, ChannelTabsUtils } from "../util";
 import BookmarkContainer from "./BookmarkContainer";
@@ -32,6 +32,7 @@ const {
 } = ChannelTabsUtils;
 
 const { PlusSmallIcon } = findByPropsLazy("PlusSmallIcon");
+const { HomeIcon } = findByPropsLazy("HomeIcon");
 const XIcon = findComponentByCodeLazy("M18.4 4L12 10.4L5.6 4L4 5.6L10.4");
 
 const cl = (name: string) => `vc-channeltabs-${name}`;
@@ -89,37 +90,46 @@ export default function ChannelsTabsContainer(props: BasicChannelTabsProps) {
         onContextMenu={e => ContextMenuApi.openContextMenu(e, () => <BasicContextMenu />)}
     >
         <div className={cl("tab-container")}>
-            {openTabs.map((tab, i) => <div
-                className={classes(cl("tab"), tab.compact && cl("tab-compact"), isTabSelected(tab.id) && cl("tab-selected"))}
+            <button
+                onClick={() => NavigationRouter.transitionTo("/channels/@me")}
+                className={classes(cl("button"), cl("action-button"), cl("home-button"), cl("hoverable"))}
+            >
+                <HomeIcon height={20} width={20} />
+            </button>
+            {openTabs.map((tab, i) => <button
+                className={classes(cl("button"), cl("tab"), tab.compact && cl("tab-compact"), isTabSelected(tab.id) && cl("tab-selected"))}
                 key={i}
+                onClick={() => moveToTab(tab.id)}
                 onAuxClick={e => {
                     if (e.button === 1 /* middle click */)
                         closeTab(tab.id);
                 }}
                 onContextMenu={e => ContextMenuApi.openContextMenu(e, () => <TabContextMenu tab={tab} />)}
             >
-                <button
-                    className={classes(cl("button"), cl("channel-info"))}
-                    onClick={() => moveToTab(tab.id)}
+                <div
+                    className={classes(cl("channel-info"))}
                 >
                     <ChannelTab {...tab} index={i} />
-                </button>
 
-                {openTabs.length > 1 && (tab.compact ? isTabSelected(tab.id) : true) && <button
-                    className={classes(cl("button"), cl("close-button"), tab.compact ? cl("close-button-compact") : cl("hoverable"))}
-                    onClick={() => closeTab(tab.id)}
-                >
-                    <XIcon height={16} width={16} />
-                </button>}
-            </div>)
+                    {openTabs.length > 1 && (tab.compact ? isTabSelected(tab.id) : true) && <button
+                        className={classes(cl("button"), cl("close-button"), tab.compact ? cl("close-button-compact") : cl("hoverable"))}
+                        onClick={() => closeTab(tab.id)}
+                    >
+                        <XIcon height={16} width={16} />
+                    </button>}
+                </div>
+            </button>)
             }
-
             <button
                 onClick={() => createTab(props, true)}
-                className={classes(cl("button"), cl("new-button"), cl("hoverable"))}
+                className={classes(cl("button"), cl("action-button"), cl("new-button"), cl("hoverable"))}
             >
                 <PlusSmallIcon height={20} width={20} />
             </button>
+            <div
+                className={classes(cl("spacer"))}
+            >
+            </div >
         </div >
         {showBookmarkBar && <>
             <div className={cl("separator")} />
