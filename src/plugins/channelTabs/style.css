@@ -39,6 +39,7 @@
 
 .vc-channeltabs-tab-container {
     -webkit-app-region: drag;
+    margin: 0 0.25rem;
 }
 
 .vc-channeltabs-tab-container>* {
@@ -87,6 +88,10 @@
 
 .vc-channeltabs-scroller::-webkit-scrollbar {
     display: none;
+}
+
+.vc-channeltabs-spacer {
+    flex-grow: 1;
 }
 
 .vc-channeltabs-bookmarks {
@@ -180,13 +185,18 @@
 .vc-channeltabs-action-button {
     margin: 0.375rem 0.125rem 0.125rem;
     padding: 0.25rem;
-    border-radius: 0.25rem;
+    border-radius: 50%;
     height: 28px;
 }
 
 .vc-channeltabs-action-button svg {
     height: 20px;
     align-self: self-end;
+    color: var(--interactive-normal);
+}
+
+.vc-channeltabs-action-button:hover svg {
+    color: var(--interactive-hover);
 }
 
 .vc-channeltabs-close-button {
@@ -261,3 +271,20 @@
     white-space: nowrap;
     text-overflow: ellipsis;
 }
+
+
+/* [class*="typeWindows_"] {
+    position: absolute;
+    right: 0;
+    z-index: 100;
+    -webkit-app-region: no-drag;
+}
+
+[class*="typeWindows_"] > * {
+    display: none;
+}
+
+[class*="typeWindows_"] > [role="button"] {
+    display: flex;
+    z-index: 100;
+} */

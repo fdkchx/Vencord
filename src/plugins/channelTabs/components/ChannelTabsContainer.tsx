@@ -32,15 +32,17 @@ const {
 } = ChannelTabsUtils;
 
 const { PlusSmallIcon } = findByPropsLazy("PlusSmallIcon");
-const { HomeIcon } = findByPropsLazy("HomeIcon");
+const { ClydeIcon } = findByPropsLazy("ClydeIcon");
+const { CompassIcon } = findByPropsLazy("CompassIcon");
 const XIcon = findComponentByCodeLazy("M18.4 4L12 10.4L5.6 4L4 5.6L10.4");
 
 const cl = (name: string) => `vc-channeltabs-${name}`;
+const clab = (name: string) => classes(cl("button"), cl("action-button"), cl(`${name}-button`), cl("hoverable"));
 
 export default function ChannelsTabsContainer(props: BasicChannelTabsProps) {
     const { openTabs } = ChannelTabsUtils;
     const [userId, setUserId] = useState("");
-    const { showBookmarkBar } = settings.use(["showBookmarkBar"]);
+    const { showBookmarkBar, showHomeButton, showQuickSwitcher } = settings.use(["showBookmarkBar", "showHomeButton", "showQuickSwitcher"]);
 
     const _update = useForceUpdater();
     const update = useCallback((save = true) => {
@@ -90,12 +92,12 @@ export default function ChannelsTabsContainer(props: BasicChannelTabsProps) {
         onContextMenu={e => ContextMenuApi.openContextMenu(e, () => <BasicContextMenu />)}
     >
         <div className={cl("tab-container")}>
-            <button
+            {showHomeButton && <button
                 onClick={() => NavigationRouter.transitionTo("/channels/@me")}
-                className={classes(cl("button"), cl("action-button"), cl("home-button"), cl("hoverable"))}
+                className={clab("home-button")}
             >
-                <HomeIcon height={20} width={20} />
-            </button>
+                <ClydeIcon height={20} width={20} color="currentColor" />
+            </button>}
             {openTabs.map((tab, i) => <button
                 className={classes(cl("button"), cl("tab"), tab.compact && cl("tab-compact"), isTabSelected(tab.id) && cl("tab-selected"))}
                 key={i}
@@ -122,7 +124,7 @@ export default function ChannelsTabsContainer(props: BasicChannelTabsProps) {
             }
             <button
                 onClick={() => createTab(props, true)}
-                className={classes(cl("button"), cl("action-button"), cl("new-button"), cl("hoverable"))}
+                className={clab("new-button")}
             >
                 <PlusSmallIcon height={20} width={20} />
             </button>
@@ -130,6 +132,16 @@ export default function ChannelsTabsContainer(props: BasicChannelTabsProps) {
                 className={classes(cl("spacer"))}
             >
             </div >
+            {showQuickSwitcher && <button
+                onClick={() => FluxDispatcher.dispatch({
+                    type: "QUICKSWITCHER_SHOW",
+                    query: "",
+                    queryMode: null
+                })}
+                className={clab("quick-switcher-button")}
+            >
+                <CompassIcon height={20} width={20} />
+            </button>}
         </div >
         {showBookmarkBar && <>
             <div className={cl("separator")} />

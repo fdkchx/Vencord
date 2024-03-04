@@ -116,11 +116,26 @@ export const channelTabsSettings = definePluginSettings({
         type: OptionType.BOOLEAN,
         default: true
     },
+    showHomeButton: {
+        description: "",
+        type: OptionType.BOOLEAN,
+        default: true
+    },
+    showQuickSwitcher: {
+        description: "",
+        type: OptionType.BOOLEAN,
+        default: true
+    },
     bookmarkNotificationDot: {
         description: "Show notification dot for bookmarks",
         type: OptionType.BOOLEAN,
         default: true
-    }
+    },
+    enableKeybinds: {
+        description: "Enable keybinds",
+        type: OptionType.BOOLEAN,
+        default: true
+    },
 });
 
 export const { ackChannel } = findByPropsLazy("ackChannel");
@@ -232,6 +247,10 @@ function handleChannelSwitch(ch: BasicChannelTabsProps) {
 
 function isTabSelected(id: number) {
     return id === currentlyOpenTab;
+}
+
+function getCurrentTabId() {
+    return currentlyOpenTab;
 }
 
 function moveDraggedTabs(index1: number, index2: number) {
@@ -439,6 +458,6 @@ function useBookmarks(userId: string): UseBookmark {
 
 export const ChannelTabsUtils = {
     bookmarkPlaceholderName, closeOtherTabs, closeTab, closedTabs, closeTabsToTheRight, createTab,
-    handleChannelSwitch, isTabSelected, moveDraggedTabs, moveToTab, openTabHistory, openTabs,
+    handleChannelSwitch, isTabSelected, getCurrentTabId, moveDraggedTabs, moveToTab, openTabHistory, openTabs,
     openStartupTabs, reopenClosedTab, saveTabs, setUpdaterFunction, switchChannel, toggleCompactTab, useBookmarks
 };

@@ -26,6 +26,7 @@ import { ChannelStore, Menu } from "@webpack/common";
 import { Channel, Message } from "discord-types/general";
 
 import ChannelsTabsContainer from "./components/ChannelTabsContainer";
+import onKey from "./keybinds";
 import { BasicChannelTabsProps, channelTabsSettings as settings, ChannelTabsUtils } from "./util";
 
 const contextMenuPatch: NavContextMenuPatchCallback = (children, props) =>
@@ -108,11 +109,14 @@ export default definePlugin({
     start() {
         addContextMenuPatch("channel-mention-context", contextMenuPatch);
         addContextMenuPatch("channel-context", contextMenuPatch);
+        document.addEventListener("keydown", onKey);
+
     },
 
     stop() {
         removeContextMenuPatch("channel-mention-context", contextMenuPatch);
         removeContextMenuPatch("channel-context", contextMenuPatch);
+        document.removeEventListener("keydown", onKey);
     },
 
     containerHeight: 0,

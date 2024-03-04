@@ -25,7 +25,7 @@ import { ackChannel, Bookmark, bookmarkFolderColors, Bookmarks, ChannelTabsProps
 const { bookmarkPlaceholderName, closeOtherTabs, closeTab, closeTabsToTheRight, toggleCompactTab, reopenClosedTab } = ChannelTabsUtils;
 
 export function BasicContextMenu() {
-    const { showBookmarkBar } = settings.use(["showBookmarkBar"]);
+    const { showBookmarkBar, showHomeButton, showQuickSwitcher } = settings.use(["showBookmarkBar", "showHomeButton", "showQuickSwitcher"]);
 
     return <Menu.Menu
         navId="channeltabs-context"
@@ -40,6 +40,24 @@ export function BasicContextMenu() {
                 label="Bookmark Bar"
                 action={() => {
                     settings.store.showBookmarkBar = !settings.store.showBookmarkBar;
+                }}
+            />
+            <Menu.MenuCheckboxItem
+                checked={showHomeButton}
+                key="show-home-button"
+                id="show-home-button"
+                label="Home Button"
+                action={() => {
+                    settings.store.showHomeButton = !settings.store.showHomeButton;
+                }}
+            />
+            <Menu.MenuCheckboxItem
+                checked={showQuickSwitcher}
+                key="show-quick-switcher"
+                id="show-quick-switcher"
+                label="Quick Switcher Button"
+                action={() => {
+                    settings.store.showQuickSwitcher = !settings.store.showQuickSwitcher;
                 }}
             />
         </Menu.MenuGroup>
