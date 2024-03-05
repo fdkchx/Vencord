@@ -22,31 +22,66 @@ import { addContextMenuPatch, findGroupChildrenByChildId, NavContextMenuPatchCal
 import ErrorBoundary from "@components/ErrorBoundary";
 import { Devs } from "@utils/constants";
 import definePlugin from "@utils/types";
-import { ChannelStore, Menu, React } from "@webpack/common";
-import { Channel, Message } from "discord-types/general";
+import { ChannelStore, Menu, PrivateChannelsStore, React, SelectedChannelStore } from "@webpack/common";
+import { Channel, Guild, Message, User } from "discord-types/general";
 
 import TitleBar from "./components/TitleBar";
 import onKey from "./keybinds";
 import { channelTabsSettings as settings, ChannelTabsUtils } from "./util";
 
-const contextMenuPatch: NavContextMenuPatchCallback = (children, props) =>
-    () => {
-        if (!props) return;
-        const { channel, messageId }: { channel: Channel, messageId?: string; } = props;
-        const group = findGroupChildrenByChildId("channel-copy-link", children);
-        if (group)
-            group.push(
-                <Menu.MenuItem
-                    label="Open in New Tab"
-                    id="open-link-in-tab"
-                    key="open-link-in-tab"
-                    action={() => ChannelTabsUtils.createTab({
-                        guildId: channel.guild_id,
-                        channelId: channel.id
-                    }, true, messageId)}
-                />
-            );
-    };
+const channelContextMenuPatch: NavContextMenuPatchCallback = (children, props) => () => {
+    if (!props) return;
+    const { channel, messageId }: { channel: Channel, messageId?: string; } = props;
+    const group = findGroupChildrenByChildId("channel-copy-link", children);
+    if (group)
+        group.push(
+            <Menu.MenuItem
+                label="Open in New Tab"
+                id="open-link-in-tab"
+                key="open-link-in-tab"
+                action={() => ChannelTabsUtils.createTab({
+                    guildId: channel.guild_id || "@me",
+                    channelId: channel.id
+                }, true, messageId)}
+            />
+        );
+};
+
+const userContextMenuPatch: NavContextMenuPatchCallback = (children, props) => () => {
+    if (!props) return;
+    const { user }: { user: User; } = props;
+    const group = findGroupChildrenByChildId("user-profile", children);
+    if (group)
+        group.push(
+            <Menu.MenuItem
+                label="Open DMs in New Tab"
+                id="open-link-in-tab"
+                key="open-link-in-tab"
+                action={async () => ChannelTabsUtils.createTab({
+                    guildId: "@me",
+                    channelId: await PrivateChannelsStore.getOrEnsurePrivateChannel(user.id)
+                }, true)}
+            />
+        );
+};
+
+const guildContextMenuPatch: NavContextMenuPatchCallback = (children, props) => () => {
+    if (!props) return;
+    const { guild, }: { guild: Guild; } = props;
+    const group = findGroupChildrenByChildId("mark-guild-read", children);
+    if (group)
+        group.push(
+            <Menu.MenuItem
+                label="Open in New Tab"
+                id="open-link-in-tab"
+                key="open-link-in-tab"
+                action={() => ChannelTabsUtils.createTab({
+                    guildId: guild.id,
+                    channelId: (SelectedChannelStore.getMostRecentSelectedTextChannelId(guild.id) as string)
+                }, true)}
+            />
+        );
+};
 
 export default definePlugin({
     name: "ChannelTabs",
@@ -108,29 +143,25 @@ export default definePlugin({
                 match: /(\.guildSettingsSection\).{0,30})},\[/,
                 replace: "$1;$self.onAppDirectoryClose()},["
             }
-        },
-        // mention count
-        {
-            find: ".setPageTitleNotificationCount)(",
-            replacement: {
-                match: /(\i)=(\i)\.NOOP;/,
-                replace: "$1=$2.NOOP;();"
-            }
         }
     ],
 
     settings,
 
     start() {
-        addContextMenuPatch("channel-mention-context", contextMenuPatch);
-        addContextMenuPatch("channel-context", contextMenuPatch);
+        addContextMenuPatch("channel-mention-context", channelContextMenuPatch);
+        addContextMenuPatch("channel-context", channelContextMenuPatch);
+        addContextMenuPatch("user-context", userContextMenuPatch);
+        addContextMenuPatch("guild-context", guildContextMenuPatch);
         document.addEventListener("keydown", onKey);
 
     },
 
     stop() {
-        removeContextMenuPatch("channel-mention-context", contextMenuPatch);
-        removeContextMenuPatch("channel-context", contextMenuPatch);
+        removeContextMenuPatch("channel-mention-context", channelContextMenuPatch);
+        removeContextMenuPatch("channel-context", channelContextMenuPatch);
+        removeContextMenuPatch("user-context", userContextMenuPatch);
+        removeContextMenuPatch("guild-context", guildContextMenuPatch);
         document.removeEventListener("keydown", onKey);
     },
 
