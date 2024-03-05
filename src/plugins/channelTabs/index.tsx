@@ -25,7 +25,7 @@ import definePlugin from "@utils/types";
 import { ChannelStore, Menu, React } from "@webpack/common";
 import { Channel, Message } from "discord-types/general";
 
-import ChannelsTabsContainer from "./components/ChannelTabsContainer";
+import TitleBar from "./components/TitleBar";
 import onKey from "./keybinds";
 import { channelTabsSettings as settings, ChannelTabsUtils } from "./util";
 
@@ -137,11 +137,9 @@ export default definePlugin({
     containerHeight: 0,
 
     renderTitleBar() {
-        return <>
-            <ErrorBoundary>
-                <ChannelsTabsContainer />
-            </ErrorBoundary>
-        </>;
+        return <ErrorBoundary>
+            <TitleBar />
+        </ErrorBoundary>;
     },
 
     open(message: Message) {

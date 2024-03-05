@@ -24,7 +24,8 @@ import { OptionType } from "@utils/types";
 import { findByPropsLazy } from "@webpack";
 import { ChannelStore, NavigationRouter, SelectedChannelStore, SelectedGuildStore, showToast, Toasts, useCallback, UserStore, useState } from "@webpack/common";
 
-import { ChannelTabsPreview } from "./components/ChannelTabsContainer";
+import ChannelTabsPreview from "./components/ChannelTabsPreview";
+
 
 export type BasicChannelTabsProps = {
     guildId: string;
@@ -167,8 +168,12 @@ function setMentionCount(data) {
     mcSubs.forEach(u => u());
 }
 
-let update = (save = true) => {
+let updateTabs = (save = true) => {
     logger.warn("Update function not set");
+};
+
+let updateTitleBar = () => {
+    logger.warn("Update title bar function not set");
 };
 
 function bookmarkPlaceholderName(bookmark: Omit<Bookmark | BookmarkFolder, "name">) {
@@ -357,8 +362,17 @@ function setOpenTab(id: number) {
     openTabHistory.push(id);
 }
 
+function update(save?: boolean) {
+    updateTabs(save);
+    updateTitleBar();
+}
+
 function setUpdaterFunction(fn: () => void) {
-    update = fn;
+    updateTabs = fn;
+}
+
+function setTitleBarUpdaterFunction(fn: () => void) {
+    updateTitleBar = fn;
 }
 
 function switchChannel(ch: BasicChannelTabsProps) {
@@ -469,6 +483,6 @@ function useBookmarks(userId: string): UseBookmark {
 
 export const ChannelTabsUtils = {
     bookmarkPlaceholderName, closeOtherTabs, closeTab, closedTabs, closeTabsToTheRight, createTab,
-    handleChannelSwitch, isTabSelected, getCurrentTabId, mentionCountData, mcSubs, setMentionCount, mentionCountSubscribe, moveDraggedTabs, moveToTab, openTabHistory, openTabs,
-    openStartupTabs, reopenClosedTab, saveTabs, setUpdaterFunction, switchChannel, toggleCompactTab, useBookmarks
+    handleChannelSwitch, isTabSelected, getCurrentTabId, moveDraggedTabs, mentionCountData, mcSubs, setMentionCount, mentionCountSubscribe, moveToTab, openTabHistory, openTabs,
+    openStartupTabs, reopenClosedTab, saveTabs, setUpdaterFunction, setTitleBarUpdaterFunction, switchChannel, toggleCompactTab, useBookmarks
 };

@@ -24,8 +24,6 @@ import { Channel, Guild, User } from "discord-types/general";
 
 import { ChannelTabsProps, channelTabsSettings as settings, ChannelTabsUtils, CircleQuestionIcon } from "../util";
 
-const { moveDraggedTabs } = ChannelTabsUtils;
-
 const { getBadgeWidthForValue } = findByPropsLazy("getBadgeWidthForValue");
 const dotStyles = findByPropsLazy("numberBadge", "textBadge");
 
@@ -220,7 +218,8 @@ export default function ChannelTab(props: ChannelTabsProps & { index: number; })
                 return;
             }
 
-            moveDraggedTabs(dragIndex, hoverIndex);
+            // Very intentional to avoid destructuring undefined
+            ChannelTabsUtils?.moveDraggedTabs(dragIndex, hoverIndex);
             item.index = hoverIndex;
         },
     }), []);

@@ -19,9 +19,9 @@
 import { classes } from "@utils/misc";
 import { closeModal, openModal } from "@utils/modal";
 import { findByPropsLazy } from "@webpack";
-import { Avatar, ChannelStore, ContextMenuApi, FluxDispatcher, GuildStore, i18n, Menu, ReactDnd, ReadStateStore, Text, Tooltip, useEffect, useRef, UserStore } from "@webpack/common";
+import { Avatar, ChannelStore, ContextMenuApi, FluxDispatcher, GuildStore, i18n, Menu, ReactDnd, ReadStateStore, SelectedChannelStore, SelectedGuildStore, Text, Tooltip, useEffect, useRef, UserStore, useStateFromStores } from "@webpack/common";
 
-import { ackChannel, BasicChannelTabsProps, Bookmark, BookmarkFolder, BookmarkProps, channelTabsSettings as settings, ChannelTabsUtils, CircleQuestionIcon } from "../util";
+import { ackChannel, Bookmark, BookmarkFolder, BookmarkProps, channelTabsSettings as settings, ChannelTabsUtils, CircleQuestionIcon } from "../util";
 import { NotificationDot } from "./ChannelTab";
 import { BookmarkContextMenu, EditModal } from "./ContextMenus";
 
@@ -226,8 +226,14 @@ function HorizontallyScrolling({ children, className }: React.PropsWithChildren<
     </div>;
 }
 
-export default function BookmarkContainer(props: BasicChannelTabsProps & { userId: string; }) {
-    const { guildId, channelId, userId } = props;
+export default function BookmarkContainer(props: { userId: string; }) {
+    const { guildId, channelId } = useStateFromStores([SelectedChannelStore, SelectedGuildStore], () => {
+        return {
+            channelId: SelectedChannelStore.getChannelId(),
+            guildId: SelectedGuildStore.getGuildId() || "@me"
+        };
+    });
+    const { userId } = props;
     const [bookmarks, methods] = useBookmarks(userId);
 
 
