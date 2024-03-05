@@ -52,6 +52,10 @@
     align-items: flex-start;
 }
 
+.vc-channeltabs-maximized .vc-channeltabs-tab-container {
+    margin: -0.25rem 0 0;
+}
+
 .platform-osx .vc-channeltabs-tab-container {
     padding-left: 66px;
 }
@@ -157,7 +161,7 @@
     justify-content: space-between;
     align-items: center;
     width: 14rem;
-    min-width: 0;
+    min-width: 6.5rem;
 }
 
 .vc-channeltabs-tab-compact {
@@ -207,11 +211,23 @@
     color: var(--interactive-hover);
 }
 
+.vc-channeltabs-mentions {
+    margin: 4px 0 0;
+    padding: 0;
+    height: 32px;
+    min-width: 32px;
+    width: 32px;
+    display: flex;
+}
+
+.vc-channeltabs-mentions > div {
+    margin: auto;
+}
+
 .vc-channeltabs-window-buttons {
     display: flex;
     flex-direction: row;
 }
-
 
 .vc-channeltabs-close-button {
     height: 1rem;

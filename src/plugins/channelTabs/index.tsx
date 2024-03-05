@@ -108,6 +108,14 @@ export default definePlugin({
                 match: /(\.guildSettingsSection\).{0,30})},\[/,
                 replace: "$1;$self.onAppDirectoryClose()},["
             }
+        },
+        // mention count
+        {
+            find: "setPageTitleNotificationCount:",
+            replacement: {
+                match: /(\i)\((\i)\){(\i)\.setState/,
+                replace: "$1($2){$self.util.setMentionCountData($2);$3.setState"
+            }
         }
     ],
 

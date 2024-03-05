@@ -19,7 +19,7 @@
 import { classes } from "@utils/misc";
 import { useForceUpdater } from "@utils/react";
 import { findByPropsLazy, findComponentByCodeLazy } from "@webpack";
-import { Button, ContextMenuApi, Flex, FluxDispatcher, Forms, NavigationRouter, SelectedChannelStore, SelectedGuildStore, useCallback, useEffect, useRef, UserStore, useState, useStateFromStores } from "@webpack/common";
+import { Button, ContextMenuApi, Flex, FluxDispatcher, Forms, NavigationRouter, React, SelectedChannelStore, SelectedGuildStore, useCallback, useEffect, useRef, UserStore, useState, useStateFromStores } from "@webpack/common";
 
 import { ChannelTabsProps, channelTabsSettings as settings, ChannelTabsUtils } from "../util";
 import BookmarkContainer from "./BookmarkContainer";
@@ -36,6 +36,7 @@ const { PlusSmallIcon } = findByPropsLazy("PlusSmallIcon");
 const { ClydeIcon } = findByPropsLazy("ClydeIcon");
 const { CompassIcon } = findByPropsLazy("CompassIcon");
 const XIcon = findComponentByCodeLazy("M18.4 4L12 10.4L5.6 4L4 5.6L10.4");
+const MentionsBadge = findComponentByCodeLazy("mentionsBadge");
 
 export const cl = (name: string) => `vc-channeltabs-${name}`;
 export const clab = (name: string) => classes(cl("button"), cl("action-button"), cl(`${name}-button`), cl("hoverable"));
@@ -50,6 +51,8 @@ export default function ChannelsTabsContainer() {
     const { openTabs } = ChannelTabsUtils;
     const [userId, setUserId] = useState("");
     const { showBookmarkBar, showHomeButton, showQuickSwitcher } = settings.use(["showBookmarkBar", "showHomeButton", "showQuickSwitcher"]);
+
+    const mentionCount = React.useSyncExternalStore(ChannelTabsUtils.mentionCountSubscribe, () => ChannelTabsUtils.mentionCountData);
 
     const _update = useForceUpdater();
     const update = useCallback((save = true) => {
@@ -68,6 +71,7 @@ export default function ChannelsTabsContainer() {
     }, []);
 
     const ref = useRef<HTMLDivElement>(null);
+    const tabRef = useRef<HTMLButtonElement>(null);
 
     useEffect(() => {
         setUpdaterFunction(update);
@@ -99,36 +103,64 @@ export default function ChannelsTabsContainer() {
         onContextMenu={e => ContextMenuApi.openContextMenu(e, () => <BasicContextMenu />)}
     >
         <div className={cl("tab-container")}>
-            {showHomeButton && <button
-                onClick={() => NavigationRouter.transitionTo("/channels/@me")}
-                className={clab("home")}
-            >
-                <ClydeIcon height={20} width={20} color="currentColor" />
-            </button>}
-            {openTabs.map((tab, i) => <button
-                className={classes(cl("button"), cl("tab"), tab.compact && cl("tab-compact"), isTabSelected(tab.id) && cl("tab-selected"))}
-                key={i}
-                onClick={() => moveToTab(tab.id)}
-                onAuxClick={e => {
-                    if (e.button === 1 /* middle click */)
-                        closeTab(tab.id);
-                }}
-                onContextMenu={e => ContextMenuApi.openContextMenu(e, () => <TabContextMenu tab={tab} />)}
-            >
-                <div
-                    className={classes(cl("channel-info"))}
+            {showHomeButton && <>
+                <button
+                    onClick={() => NavigationRouter.transitionTo("/channels/@me")}
+                    className={clab("home")}
                 >
-                    <ChannelTab {...tab} index={i} />
-
-                    {openTabs.length > 1 && (tab.compact ? isTabSelected(tab.id) : true) && <button
-                        className={classes(cl("button"), cl("close-button"), tab.compact ? cl("close-button-compact") : cl("hoverable"))}
-                        onClick={() => closeTab(tab.id)}
-                    >
-                        <XIcon height={16} width={16} />
-                    </button>}
+                    <ClydeIcon height={20} width={20} color="currentColor" />
+                </button>
+                <div
+                    className={cl("mentions")}
+                >
+                    {mentionCount > 0 &&
+                        <MentionsBadge mentionsCount={(mentionCount > 99 ? "@" : mentionCount)} />
+                    }
                 </div>
-            </button>)
-            }
+            </>}
+            <div
+                className={cl("scroller")}
+                onWheel={e => {
+                    if (e.deltaY !== 0 && !e.shiftKey) {
+                        // e.preventDefault();
+                        const modifier = e.deltaY < 0 ? -1 : 1;
+                        let index = ChannelTabsUtils.openTabs.findIndex(c => c.id === ChannelTabsUtils.getCurrentTabId()) + modifier;
+                        if (index >= ChannelTabsUtils.openTabs.length) index = 0;
+                        if (index < 0) index = ChannelTabsUtils.openTabs.length - 1;
+                        ChannelTabsUtils.moveToTab(ChannelTabsUtils.openTabs[index].id);
+                        // tabRef.current?.scrollIntoView({
+                        //     inline: modifier > 0 ? "start" : "end"
+                        // });
+                    }
+                }}
+            >
+                {openTabs.map((tab, i) => <button
+                    className={classes(cl("button"), cl("tab"), tab.compact && cl("tab-compact"), isTabSelected(tab.id) && cl("tab-selected"))}
+                    key={i}
+                    onClick={() => moveToTab(tab.id)}
+                    onAuxClick={e => {
+                        if (e.button === 1 /* middle click */) {
+                            closeTab(tab.id);
+                            e.preventDefault();
+                        }
+                    }}
+                    onContextMenu={e => ContextMenuApi.openContextMenu(e, () => <TabContextMenu tab={tab} />)}
+                    ref={isTabSelected(tab.id) ? tabRef : undefined}
+                >
+                    <div
+                        className={classes(cl("channel-info"))}
+                    >
+                        <ChannelTab {...tab} index={i} />
+
+                        {openTabs.length > 1 && (tab.compact ? isTabSelected(tab.id) : true) && <button
+                            className={classes(cl("button"), cl("close-button"), tab.compact ? cl("close-button-compact") : cl("hoverable"))}
+                            onClick={() => closeTab(tab.id)}
+                        >
+                            <XIcon height={16} width={16} />
+                        </button>}
+                    </div>
+                </button>)}
+            </div>
             <button
                 onClick={() => createTab(props, true)}
                 className={clab("new")}
