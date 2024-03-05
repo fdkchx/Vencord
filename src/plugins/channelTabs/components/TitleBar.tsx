@@ -38,6 +38,7 @@ export const clab = (name: string) => classes(cl("button"), cl("action-button"),
 
 export default function TitleBar() {
     const [userId, setUserId] = useState("");
+    const [height, setHeight] = useState(0);
     const { showBookmarkBar, showHomeButton } = settings.use(["showBookmarkBar", "showHomeButton"]);
 
     const update = useForceUpdater();
@@ -71,6 +72,7 @@ export default function TitleBar() {
 
     useEffect(() => {
         (Vencord.Plugins.plugins.ChannelTabs as any).containerHeight = ref.current?.clientHeight;
+        setHeight(ref.current?.clientHeight || 0);
     }, [userId, showBookmarkBar]);
 
     return <div
@@ -78,6 +80,9 @@ export default function TitleBar() {
         ref={ref}
         onContextMenu={e => ContextMenuApi.openContextMenu(e, () => <BasicContextMenu />)}
     >
+        <style id="vc-channeltabs-titlebar-height-style">
+            {`:root{--vc-channeltabs-titlebar-height-auto:${height}px !important;`}
+        </style>
         <div className={cl("titlebar")}>
             {showHomeButton && <>
                 <button
