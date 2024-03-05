@@ -30,11 +30,13 @@ export default definePlugin({
     enabledByDefault: true,
 
     onKey(e: KeyboardEvent) {
+        const channelTabs = Vencord.Plugins.isPluginEnabled("ChannelTabs");
         const hasCtrl = e.ctrlKey || (e.metaKey && navigator.platform.includes("Mac"));
 
         if (hasCtrl) switch (e.key) {
             case "t":
             case "T":
+                if (channelTabs) break;
                 e.preventDefault();
                 if (e.shiftKey) {
                     if (SelectedGuildStore.getGuildId()) NavigationRouter.transitionToGuild("@me");
@@ -52,10 +54,12 @@ export default definePlugin({
                 SettingsRouter.open("My Account");
                 break;
             case "Tab":
+                if (channelTabs) break;
                 const handler = e.shiftKey ? KeyBinds.SERVER_PREV : KeyBinds.SERVER_NEXT;
                 handler.action(e);
                 break;
             default:
+                if (channelTabs) break;
                 if (e.key >= "1" && e.key <= "9") {
                     e.preventDefault();
                     KeyBinds.JUMP_TO_GUILD.action(e, `mod+${e.key}`);
