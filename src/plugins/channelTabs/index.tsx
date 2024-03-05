@@ -111,10 +111,10 @@ export default definePlugin({
         },
         // mention count
         {
-            find: "setPageTitleNotificationCount:",
+            find: ".setPageTitleNotificationCount)(",
             replacement: {
-                match: /(\i)\((\i)\){(\i)\.setState/,
-                replace: "$1($2){$self.util.setMentionCountData($2);$3.setState"
+                match: /(\i)=(\i)\.NOOP;/,
+                replace: "$1=$2.NOOP;();"
             }
         }
     ],

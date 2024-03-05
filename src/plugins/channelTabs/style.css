@@ -224,6 +224,10 @@
     margin: auto;
 }
 
+.vc-channeltabs-mentioned-icon {
+    padding: 0;
+}
+
 .vc-channeltabs-window-buttons {
     display: flex;
     flex-direction: row;

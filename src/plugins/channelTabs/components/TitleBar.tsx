@@ -18,7 +18,7 @@
 
 import { classes } from "@utils/misc";
 import { useForceUpdater } from "@utils/react";
-import { findByPropsLazy, findComponentByCodeLazy } from "@webpack";
+import { findByPropsLazy } from "@webpack";
 import { ContextMenuApi, FluxDispatcher, NavigationRouter, React, useEffect, useRef, UserStore, useState } from "@webpack/common";
 
 import { channelTabsSettings as settings, ChannelTabsUtils } from "../util";
@@ -26,12 +26,12 @@ import BookmarkContainer from "./BookmarkContainer";
 import ChannelsTabsContainer from "./ChannelTabsContainer";
 import { BasicContextMenu } from "./ContextMenus";
 import QuickSwitcherButton from "./QuickSwitcherButton";
+import TotalMentionsBadge from "./TotalMentionsBadge";
 import WindowButtons from "./WindowButtons";
 
 const { setTitleBarUpdaterFunction } = ChannelTabsUtils;
 
 const { ClydeIcon } = findByPropsLazy("ClydeIcon");
-const MentionsBadge = findComponentByCodeLazy("mentionsBadge");
 
 export const cl = (name: string) => `vc-channeltabs-${name}`;
 export const clab = (name: string) => classes(cl("button"), cl("action-button"), cl(`${name}-button`), cl("hoverable"));
@@ -39,8 +39,6 @@ export const clab = (name: string) => classes(cl("button"), cl("action-button"),
 export default function TitleBar() {
     const [userId, setUserId] = useState("");
     const { showBookmarkBar, showHomeButton } = settings.use(["showBookmarkBar", "showHomeButton"]);
-
-    const mentionCount = React.useSyncExternalStore(ChannelTabsUtils.mentionCountSubscribe, () => ChannelTabsUtils.mentionCountData);
 
     const update = useForceUpdater();
 
@@ -88,13 +86,7 @@ export default function TitleBar() {
                 >
                     <ClydeIcon height={20} width={20} color="currentColor" />
                 </button>
-                <div
-                    className={cl("mentions")}
-                >
-                    {mentionCount > 0 &&
-                        <MentionsBadge mentionsCount={(mentionCount > 99 ? "@" : mentionCount)} />
-                    }
-                </div>
+                {userId && <TotalMentionsBadge />}
             </>}
             <ChannelsTabsContainer />
             <div

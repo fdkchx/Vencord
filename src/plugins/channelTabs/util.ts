@@ -152,22 +152,6 @@ let currentlyOpenTab: number;
 const openTabHistory: number[] = [];
 let persistedTabs: Promise<PersistedTabs | undefined>;
 
-
-let mentionCountData = -1;
-let mcSubs: (() => void)[] = [];
-
-function mentionCountSubscribe(listener: () => void) {
-    mcSubs = [...mcSubs, listener];
-    return () => {
-        mcSubs = mcSubs.filter(l => l !== listener);
-    };
-}
-
-function setMentionCount(data) {
-    mentionCountData = data;
-    mcSubs.forEach(u => u());
-}
-
 let updateTabs = (save = true) => {
     logger.warn("Update function not set");
 };
@@ -483,6 +467,6 @@ function useBookmarks(userId: string): UseBookmark {
 
 export const ChannelTabsUtils = {
     bookmarkPlaceholderName, closeOtherTabs, closeTab, closedTabs, closeTabsToTheRight, createTab,
-    handleChannelSwitch, isTabSelected, getCurrentTabId, moveDraggedTabs, mentionCountData, mcSubs, setMentionCount, mentionCountSubscribe, moveToTab, openTabHistory, openTabs,
+    handleChannelSwitch, isTabSelected, getCurrentTabId, moveDraggedTabs, moveToTab, openTabHistory, openTabs,
     openStartupTabs, reopenClosedTab, saveTabs, setUpdaterFunction, setTitleBarUpdaterFunction, switchChannel, toggleCompactTab, useBookmarks
 };
