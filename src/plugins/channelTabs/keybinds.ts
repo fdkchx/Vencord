@@ -29,8 +29,10 @@ export default function onKey(e: KeyboardEvent) {
             ChannelTabsUtils.closeTab(ChannelTabsUtils.getCurrentTabId());
             break;
         case "Tab":
+        case "PageUp":
+        case "PageDown":
             e.preventDefault();
-            const modifier = e.shiftKey ? -1 : 1;
+            const modifier = (e.key === "Tab" ? e.shiftKey : e.key === "PageUp") ? -1 : 1;
             let index = ChannelTabsUtils.openTabs.findIndex(c => c.id === ChannelTabsUtils.getCurrentTabId()) + modifier;
             if (index >= ChannelTabsUtils.openTabs.length) index = 0;
             if (index < 0) index = ChannelTabsUtils.openTabs.length - 1;
