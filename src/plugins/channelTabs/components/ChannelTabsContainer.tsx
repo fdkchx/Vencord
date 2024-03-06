@@ -21,7 +21,7 @@ import { useForceUpdater } from "@utils/react";
 import { findByPropsLazy, findComponentByCodeLazy } from "@webpack";
 import { ContextMenuApi, FluxDispatcher, React, SelectedChannelStore, SelectedGuildStore, useCallback, useEffect, useRef, UserStore, useState, useStateFromStores } from "@webpack/common";
 
-import { ChannelTabsUtils } from "../util";
+import { channelTabsSettings as settings, ChannelTabsUtils } from "../util";
 import ChannelTab from "./ChannelTab";
 import { TabContextMenu } from "./ContextMenus";
 
@@ -45,6 +45,7 @@ export default function ChannelsTabsContainer() {
     });
     const { openTabs } = ChannelTabsUtils;
     const [userId, setUserId] = useState("");
+    const { tabStyle } = settings.use(["tabStyle"]);
 
     const _update = useForceUpdater();
     const update = useCallback((save = true) => {
@@ -86,7 +87,7 @@ export default function ChannelsTabsContainer() {
     saveTabs(userId);
 
     return <div
-        className={cl("tab-container")}
+        className={classes(cl("tab-container"), cl(`tab-style-${tabStyle}`))}
         ref={ref}
     >
         <div
