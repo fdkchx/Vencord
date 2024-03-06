@@ -150,9 +150,19 @@
     display: flex;
     flex-direction: row;
     flex-grow: 1;
-    margin: 0.25rem 0.25rem 0;
     overflow: hidden;
+}
+
+.vc-channeltabs-tab-style-tabs .vc-channeltabs-channel-info {
+    margin: 0.25rem 0.25rem 0;
     border-radius: 0.75rem 0.75rem 0 0;
+}
+
+.vc-channeltabs-tab-style-pill .vc-channeltabs-channel-info {
+    margin: 0.25rem;
+
+    /* 0.75rem seems too round? */
+    border-radius: 0.5rem;
 }
 
 .vc-channeltabs-tab {
@@ -207,8 +217,16 @@
     width: 16px;
 }
 
-.vc-channeltabs-action-button:hover svg {
+.vc-channeltabs-home-button svg {
     color: var(--interactive-hover);
+}
+
+.vc-channeltabs-home-button:hover svg {
+    color: #fff;
+}
+
+.vc-channeltabs-hoverable.vc-channeltabs-action-button.vc-channeltabs-home-button:hover {
+    background-color: var(--brand-experiment);
 }
 
 .vc-channeltabs-mentions {

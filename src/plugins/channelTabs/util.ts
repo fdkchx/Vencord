@@ -102,6 +102,18 @@ export const channelTabsSettings = definePluginSettings({
         type: OptionType.COMPONENT,
         default: {}
     },
+    tabStyle: {
+        type: OptionType.SELECT,
+        description: "Tab display style",
+        options: [{
+            label: "Tabs (like Chrome)",
+            value: "tabs",
+            default: true
+        }, {
+            label: "Pill (like Firefox)",
+            value: "pill"
+        }],
+    },
     noPomeloNames: {
         description: "Use display names instead of usernames for DM's",
         type: OptionType.BOOLEAN,

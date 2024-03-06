@@ -80,7 +80,7 @@ export default function TitleBar() {
         ref={ref}
         onContextMenu={e => ContextMenuApi.openContextMenu(e, () => <BasicContextMenu />)}
     >
-        <style id="vc-channeltabs-titlebar-height-style">
+        <style className={cl("titlebar-height-style")}>
             {`:root{--vc-channeltabs-titlebar-height-auto:${height}px !important;`}
         </style>
         <div className={cl("titlebar")}>
