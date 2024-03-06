@@ -27,6 +27,6 @@ export default function ChannelsTabsContainer() {
             className={clab("quick-switcher")}
         >
             <CompassIcon height={20} width={20} />
-        </button>};
+        </button>}
     </>;
 }
