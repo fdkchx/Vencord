@@ -47,6 +47,7 @@ let [setAutoMute, cancelAutoMute] = [() => { }, () => { }];
 function updateTimeout(seconds: number) {
     cancelAutoMute();
     [setAutoMute, cancelAutoMute] = clearableDebounce(autoMute, seconds * 1000);
+    updateAutoMute();
 }
 
 const settings = definePluginSettings({
@@ -85,6 +86,7 @@ const AudioDeviceContextMenuPatch: NavContextMenuPatchCallback = (children, prop
                     label="Enable Auto Mute"
                     action={() => {
                         settings.store.isEnabled = !isEnabled;
+                        updateAutoMute();
                     }}
                 />
                 <Menu.MenuControlItem
