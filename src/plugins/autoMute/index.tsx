@@ -97,11 +97,19 @@ const AudioDeviceContextMenuPatch: NavContextMenuPatchCallback = (children, prop
                             minValue={15}
                             maxValue={900}
                             value={timeout}
-                            onChange={debounce((value: number) => {
-                                settings.store.timeout = (Math.round(value * 100) / 100);
+                            onChange={debounce((rawValue: number) => {
+                                const value = Math.round(rawValue);
+                                settings.store.timeout = value;
                                 updateTimeout(value);
                             }, 10)}
-                            renderValue={(value: number) => `${value.toFixed(2)} seconds`}
+                            renderValue={(value: number) => {
+                                const minutes = Math.floor(value / 60);
+                                const seconds = Math.round(value % 60);
+                                return [
+                                    minutes,
+                                    `${seconds < 10 ? "0" + seconds : seconds}${minutes ? "" : "s"}`
+                                ].filter(Boolean).join(":");
+                            }}
                         />
                     )}
                 />
