@@ -44,10 +44,15 @@ interface VoiceState {
 
 let [setAutoMute, cancelAutoMute] = [() => { }, () => { }];
 
+function updateTimeout(seconds: number) {
+    cancelAutoMute();
+    [setAutoMute, cancelAutoMute] = clearableDebounce(autoMute, seconds * 1000);
+}
+
 const settings = definePluginSettings({
     isEnabled: {
         type: OptionType.BOOLEAN,
-        description: "Whether to show the typing indicator for blocked users.",
+        description: "Whether the plugin will automatically mute you or not",
         default: true,
         onChange() {
             updateAutoMute();
@@ -60,27 +65,26 @@ const settings = definePluginSettings({
         default: 300,
         stickToMarkers: false,
         onChange(value) {
-            cancelAutoMute();
-            [setAutoMute, cancelAutoMute] = clearableDebounce(autoMute, value * 1000);
+            updateTimeout(value);
         },
     }
 });
 
 
 const AudioDeviceContextMenuPatch: NavContextMenuPatchCallback = (children, props: { renderInputVolume?: boolean; }) => {
-    const s = settings.use(["isEnabled", "timeout"]);
+    const { isEnabled, timeout } = settings.use(["isEnabled", "timeout"]);
 
     if ("renderInputVolume" in props) {
-        children.push(
+        children.splice(children.length - 1, 0,
             <Menu.MenuGroup
                 label="Auto Mute"
             >
                 <Menu.MenuCheckboxItem
-                    checked={s.isEnabled}
+                    checked={isEnabled}
                     id="vc-auto-mute-toggle"
                     label="Enable Auto Mute"
                     action={() => {
-                        settings.store.isEnabled = !s.isEnabled;
+                        settings.store.isEnabled = !isEnabled;
                     }}
                 />
                 <Menu.MenuControlItem
@@ -92,9 +96,12 @@ const AudioDeviceContextMenuPatch: NavContextMenuPatchCallback = (children, prop
                             ref={ref}
                             minValue={15}
                             maxValue={900}
-                            value={s.timeout}
-                            onChange={debounce((value: number) => settings.store.timeout = value, 10)}
-                            renderValue={(value: number) => `${value} seconds`}
+                            value={timeout}
+                            onChange={debounce((value: number) => {
+                                settings.store.timeout = (Math.round(value * 100) / 100);
+                                updateTimeout(value);
+                            }, 10)}
+                            renderValue={(value: number) => `${value.toFixed(2)} seconds`}
                         />
                     )}
                 />
@@ -180,8 +187,7 @@ export default definePlugin({
         "audio-device-context": AudioDeviceContextMenuPatch
     },
     start() {
-        cancelAutoMute();
-        [setAutoMute, cancelAutoMute] = clearableDebounce(autoMute, settings.store.timeout * 1000);
+        updateTimeout(settings.store.timeout);
     },
     stop() {
         cancelAutoMute();
