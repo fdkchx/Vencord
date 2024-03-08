@@ -1,8 +1,8 @@
 # Vencord (Sqaaakoi's personal fork)
 
-The cutest Discord client mod, now with extra silly :3
+The cutest Discord client mod, now with extra silly stuff
 
-For more information, see the **[upstream README](https://github.com/Vendicated/Vencord/blob/main/README.md)**
+For more information and to support the Vencord project, see the **[upstream README](https://github.com/Vendicated/Vencord/blob/main/README.md)**
 
 ## Features
 
@@ -26,7 +26,7 @@ This is a list of features in this fork.
 
 See the [developer installation guide](./docs/1_INSTALLING.md).
 
-Please do not ask upstream Vencord for support with installing this.
+Please DO NOT ask upstream Vencord for support with installing this.
 
 ## Support
 
@@ -36,7 +36,9 @@ Some support is informally offered to friends. Friends may DM me on Discord for 
 
 ## Disclaimer
 
-### THIS FORK IS  NOT SUPPORTED BY THE UPSTREAM VENCORD PROJECT.<br>THE DAYCARE CHANNEL IS NOT GOING TO HELP YOU WITH THIS FORK.
+### THIS FORK IS NOT SUPPORTED BY THE UPSTREAM VENCORD PROJECT.<br>THE DAYCARE CHANNEL IS NOT GOING TO HELP YOU WITH THIS FORK.
+
+Explode.
 
 <details>
 <summary>Using Vencord violates Discord's terms of service</summary>
