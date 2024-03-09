@@ -40,9 +40,10 @@
 .vc-channeltabs-titlebar {
     -webkit-app-region: drag;
     margin: 0 0.25rem;
+    transition: 0.25s;
 }
 
-.vc-channeltabs-titlebar>* {
+.vc-channeltabs-titlebar > * {
     -webkit-app-region: no-drag;
 }
 
@@ -52,7 +53,7 @@
     align-items: flex-start;
 }
 
-.vc-channeltabs-maximized .vc-channeltabs-titlebar {
+.vc-channeltabs-titlebar.vc-channeltabs-maximized {
     margin: -0.25rem 0 0;
 }
 
@@ -154,7 +155,6 @@
 }
 
 .vc-channeltabs-tab-style-tabs .vc-channeltabs-channel-info {
-    margin: 0.25rem 0.25rem 0;
     border-radius: 0.75rem 0.75rem 0 0;
 }
 
@@ -179,14 +179,19 @@
     min-width: unset;
 }
 
-
 .vc-channeltabs-tab-selected .vc-channeltabs-channel-info {
     background: var(--bg-overlay-selected);
     background-color: var(--background-modifier-selected);
 }
 
+.vc-channeltabs-tab-style-tabs .vc-channeltabs-channel-info,
+.vc-channeltabs-tab-style-pill.vc-channeltabs-maximized .vc-channeltabs-channel-info {
+    margin: 0.25rem 0.25rem 0;
+}
+
 .vc-channeltabs-hoverable:hover .vc-channeltabs-channel-info,
 .vc-channeltabs-hoverable.vc-channeltabs-button:hover,
+.vc-channeltabs-window-button:hover .vc-channeltabs-hoverable,
 .vc-channeltabs-tab:hover:not(.vc-channeltabs-tab-selected) .vc-channeltabs-channel-info {
     background: var(--bg-overlay-hover);
     background-color: var(--background-modifier-hover);
@@ -203,6 +208,14 @@
     padding: 0.25rem;
     border-radius: 50%;
     height: 28px;
+}
+
+.vc-channeltabs-window-button .vc-channeltabs-action-button {
+    height: 20px;
+}
+
+.vc-channeltabs-tab-style-pill:not(.vc-channeltabs-maximized) .vc-channeltabs-action-button {
+    margin-bottom: 0.375rem;
 }
 
 .vc-channeltabs-action-button svg {
@@ -249,6 +262,11 @@
 .vc-channeltabs-window-buttons {
     display: flex;
     flex-direction: row;
+    margin-right: -0.25rem;
+}
+
+.vc-channeltabs-window-buttons > :nth-last-child(1) {
+    padding-right: 0.25rem;
 }
 
 .vc-channeltabs-close-button {

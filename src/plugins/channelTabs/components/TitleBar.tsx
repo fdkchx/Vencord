@@ -39,7 +39,7 @@ export const clab = (name: string) => classes(cl("button"), cl("action-button"),
 export default function TitleBar() {
     const [userId, setUserId] = useState("");
     const [height, setHeight] = useState(0);
-    const { showBookmarkBar, showHomeButton } = settings.use(["showBookmarkBar", "showHomeButton"]);
+    const { showBookmarkBar, showHomeButton, tabStyle } = settings.use(["showBookmarkBar", "showHomeButton", "tabStyle"]);
 
     const update = useForceUpdater();
 
@@ -75,6 +75,17 @@ export default function TitleBar() {
         setHeight(ref.current?.clientHeight || 0);
     }, [userId, showBookmarkBar]);
 
+    const maximizeSupported = IS_VESKTOP ? "isMaximized" in VesktopNative.win : false;
+    const [isMaximized, setMaximized] = useState(maximizeSupported ? VesktopNative.win.isMaximized() : false);
+    if (maximizeSupported) {
+        useEffect(() => {
+            VesktopNative.win.onMaximized(setMaximized);
+            return () => {
+                VesktopNative.win.offMaximized(setMaximized);
+            };
+        }, []);
+    }
+
     return <div
         className={cl("container")}
         ref={ref}
@@ -83,7 +94,7 @@ export default function TitleBar() {
         <style className={cl("titlebar-height-style")}>
             {`:root{--vc-channeltabs-titlebar-height-auto:${height}px !important;`}
         </style>
-        <div className={cl("titlebar")}>
+        <div className={classes(cl("titlebar"), cl(`tab-style-${tabStyle}`), ...[cl("maximized")].filter(() => isMaximized))}>
             {showHomeButton && <>
                 <button
                     onClick={() => NavigationRouter.transitionTo("/channels/@me")}
