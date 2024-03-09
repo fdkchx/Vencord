@@ -18,7 +18,7 @@
 
 import "./style.css";
 
-import { addContextMenuPatch, findGroupChildrenByChildId, NavContextMenuPatchCallback, removeContextMenuPatch } from "@api/ContextMenu";
+import { findGroupChildrenByChildId, NavContextMenuPatchCallback } from "@api/ContextMenu";
 import ErrorBoundary from "@components/ErrorBoundary";
 import { Devs } from "@utils/constants";
 import definePlugin from "@utils/types";
@@ -29,7 +29,7 @@ import TitleBar from "./components/TitleBar";
 import onKey from "./keybinds";
 import { channelTabsSettings as settings, ChannelTabsUtils } from "./util";
 
-const channelContextMenuPatch: NavContextMenuPatchCallback = (children, props) => () => {
+const channelContextMenuPatch: NavContextMenuPatchCallback = (children, props) => {
     if (!props) return;
     const { channel, messageId }: { channel: Channel, messageId?: string; } = props;
     const group = findGroupChildrenByChildId("channel-copy-link", children);
@@ -47,7 +47,7 @@ const channelContextMenuPatch: NavContextMenuPatchCallback = (children, props) =
         );
 };
 
-const userContextMenuPatch: NavContextMenuPatchCallback = (children, props) => () => {
+const userContextMenuPatch: NavContextMenuPatchCallback = (children, props) => {
     if (!props) return;
     const { user }: { user: User; } = props;
     const group = findGroupChildrenByChildId("user-profile", children);
@@ -65,7 +65,7 @@ const userContextMenuPatch: NavContextMenuPatchCallback = (children, props) => (
         );
 };
 
-const guildContextMenuPatch: NavContextMenuPatchCallback = (children, props) => () => {
+const guildContextMenuPatch: NavContextMenuPatchCallback = (children, props) => {
     if (!props) return;
     const { guild, }: { guild: Guild; } = props;
     const group = findGroupChildrenByChildId("mark-guild-read", children);
@@ -148,20 +148,17 @@ export default definePlugin({
 
     settings,
 
+    contextMenus: {
+        "channel-mention-context": channelContextMenuPatch,
+        "channel-context": channelContextMenuPatch,
+        "user-context": userContextMenuPatch,
+        "guild-context": guildContextMenuPatch
+    },
     start() {
-        addContextMenuPatch("channel-mention-context", channelContextMenuPatch);
-        addContextMenuPatch("channel-context", channelContextMenuPatch);
-        addContextMenuPatch("user-context", userContextMenuPatch);
-        addContextMenuPatch("guild-context", guildContextMenuPatch);
         document.addEventListener("keydown", onKey);
-
     },
 
     stop() {
-        removeContextMenuPatch("channel-mention-context", channelContextMenuPatch);
-        removeContextMenuPatch("channel-context", channelContextMenuPatch);
-        removeContextMenuPatch("user-context", userContextMenuPatch);
-        removeContextMenuPatch("guild-context", guildContextMenuPatch);
         document.removeEventListener("keydown", onKey);
     },
 
