@@ -114,6 +114,11 @@ export const channelTabsSettings = definePluginSettings({
             value: "pill"
         }],
     },
+    compactWhenMaximized: {
+        description: "Makes the tab bar compact when maximized. Requires Vesktop.",
+        type: OptionType.BOOLEAN,
+        default: false
+    },
     noPomeloNames: {
         description: "Use display names instead of usernames for DM's",
         type: OptionType.BOOLEAN,
