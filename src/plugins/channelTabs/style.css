@@ -251,6 +251,10 @@
     display: flex;
 }
 
+.vc-channeltabs-maximized .vc-channeltabs-mentions {
+    margin: 4px 0 0 0.125rem;
+}
+
 .vc-channeltabs-mentions > div {
     margin: auto;
 }

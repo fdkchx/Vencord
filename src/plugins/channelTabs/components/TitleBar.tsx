@@ -39,7 +39,17 @@ export const clab = (name: string) => classes(cl("button"), cl("action-button"),
 export default function TitleBar() {
     const [userId, setUserId] = useState("");
     const [height, setHeight] = useState(0);
-    const { showBookmarkBar, showHomeButton, tabStyle } = settings.use(["showBookmarkBar", "showHomeButton", "tabStyle"]);
+    const {
+        showBookmarkBar,
+        showHomeButton,
+        tabStyle,
+        compactWhenMaximized
+    } = settings.use([
+        "showBookmarkBar",
+        "showHomeButton",
+        "tabStyle",
+        "compactWhenMaximized"
+    ]);
 
     const update = useForceUpdater();
 
@@ -94,7 +104,7 @@ export default function TitleBar() {
         <style className={cl("titlebar-height-style")}>
             {`:root{--vc-channeltabs-titlebar-height-auto:${height}px !important;`}
         </style>
-        <div className={classes(cl("titlebar"), cl(`tab-style-${tabStyle}`), ...[cl("maximized")].filter(() => isMaximized))}>
+        <div className={classes(cl("titlebar"), cl(`tab-style-${tabStyle}`), ...[cl("maximized")].filter(() => isMaximized && compactWhenMaximized))}>
             {showHomeButton && <>
                 <button
                     onClick={() => NavigationRouter.transitionTo("/channels/@me")}
