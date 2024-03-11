@@ -22,7 +22,7 @@ import { Button, ChannelStore, FluxDispatcher, Forms, i18n, Menu, ReadStateStore
 
 import { ackChannel, Bookmark, bookmarkFolderColors, Bookmarks, ChannelTabsProps, channelTabsSettings as settings, ChannelTabsUtils, UseBookmark } from "../util";
 
-const { bookmarkPlaceholderName, closeOtherTabs, closeTab, closeTabsToTheRight, toggleCompactTab, reopenClosedTab } = ChannelTabsUtils;
+const { bookmarkPlaceholderName, closeOtherTabs, closeTab, closeTabsToTheRight, toggleCompactTab, reopenClosedTab, sortTabs } = ChannelTabsUtils;
 
 export function BasicContextMenu() {
     const { showBookmarkBar, showHomeButton, showQuickSwitcher } = settings.use(["showBookmarkBar", "showHomeButton", "showQuickSwitcher"]);
@@ -337,6 +337,12 @@ export function TabContextMenu({ tab }: { tab: ChannelTabsProps; }) {
                 label="Reopen Closed Tab"
                 disabled={!(closedTabs.length)}
                 action={() => reopenClosedTab()}
+            />
+            <Menu.MenuItem
+                key="sort-tabs"
+                id="sort-tabs"
+                label="Sort Tabs"
+                action={() => sortTabs()}
             />
         </Menu.MenuGroup>}
         <Menu.MenuGroup>
