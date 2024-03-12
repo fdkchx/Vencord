@@ -16,13 +16,19 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+import { isNonNullish } from "@utils/guards";
 import { Margins } from "@utils/margins";
 import { closeModal, ModalContent, ModalFooter, ModalHeader, ModalRoot, openModal } from "@utils/modal";
-import { Button, ChannelStore, FluxDispatcher, Forms, i18n, Menu, ReadStateStore, Select, Text, TextInput, useState } from "@webpack/common";
+import { findByPropsLazy, findStoreLazy } from "@webpack";
+import { Button, ChannelStore, FluxDispatcher, Forms, GuildChannelStore, GuildStore, i18n, Menu, ReadStateStore, RelationshipStore, Select, Text, TextInput, UserStore, useState } from "@webpack/common";
+import { Channel } from "discord-types/general";
 
 import { ackChannel, Bookmark, bookmarkFolderColors, Bookmarks, ChannelTabsProps, channelTabsSettings as settings, ChannelTabsUtils, UseBookmark } from "../util";
 
-const { bookmarkPlaceholderName, closeOtherTabs, closeTab, closeTabsToTheRight, toggleCompactTab, reopenClosedTab, sortTabs } = ChannelTabsUtils;
+const { bookmarkPlaceholderName, createTab, closeOtherTabs, closeTab, closeTabsToTheRight, toggleCompactTab, reopenClosedTab, sortTabs } = ChannelTabsUtils;
+
+const SortedGuildStore = findStoreLazy("SortedGuildStore");
+const UserUtils = findByPropsLazy("getGlobalName");
 
 export function BasicContextMenu() {
     const { showBookmarkBar, showHomeButton, showQuickSwitcher } = settings.use(["showBookmarkBar", "showHomeButton", "showQuickSwitcher"]);
@@ -356,5 +362,73 @@ export function TabContextMenu({ tab }: { tab: ChannelTabsProps; }) {
                 }}
             />
         </Menu.MenuGroup>
+    </Menu.Menu>;
+}
+
+function mapChannels(channel: Channel) {
+    return <Menu.MenuItem
+        key={`channel-${channel.id}`}
+        id={`channel-${channel.id}`}
+        label={getGroupDMName(channel)}
+        action={() => {
+            createTab({
+                guildId: channel.getGuildId() || "@me",
+                channelId: channel.id
+            }, true);
+        }}
+    />;
+}
+
+function channelPickerRenderGuild(guildId) {
+    const guild = GuildStore.getGuild(guildId);
+    return <Menu.MenuItem
+        key={`guild-${guildId}`}
+        id={`guild-${guildId}`}
+        label={guild.name}
+        children={GuildChannelStore.getSelectableChannels(guildId).sort((a, b) => a.comparator - b.comparator).map(c => c.channel).map(mapChannels)}
+    />;
+}
+
+// stolen from MutualGroupDMs
+function getGroupDMName(channel: Channel) {
+    return channel.name ||
+        channel.recipients
+            .map(UserStore.getUser)
+            .filter(isNonNullish)
+            .map(c => RelationshipStore.getNickname(c.id) || UserUtils.getName(c))
+            .join(", ");
+}
+
+export function ChannelPickerContextMenu() {
+    const guildsTree = SortedGuildStore.getGuildsTree();
+    const dmChannels = ChannelStore.getSortedPrivateChannels();
+    return <Menu.Menu
+        navId="channeltabs-channel-picker"
+        onClose={() => FluxDispatcher.dispatch({ type: "CONTEXT_MENU_CLOSE" })}
+        aria-label="ChannelTabs Channel Picker"
+    >
+        <Menu.MenuGroup
+            label={i18n.Messages.DIRECT_MESSAGES}
+        >
+            {dmChannels.slice(0, 5).map(mapChannels)}
+            <Menu.MenuItem
+                key={"direct-messages"}
+                id={"direct-messages"}
+                label={i18n.Messages.DIRECT_MESSAGES}
+                children={dmChannels.slice(5).map(mapChannels)}
+            />
+        </Menu.MenuGroup>
+        <Menu.MenuSeparator />
+        {guildsTree.root.children.map(item => {
+            if (item.type === "guild") return channelPickerRenderGuild(item.id);
+            if (item.type === "folder") return <>
+                <Menu.MenuGroup
+                    label={item.name}
+                >
+                    {item.children.map(folderItem => channelPickerRenderGuild(folderItem.id))}
+                </Menu.MenuGroup>
+                <Menu.MenuSeparator />
+            </>;
+        })}
     </Menu.Menu>;
 }
