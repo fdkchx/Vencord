@@ -21,11 +21,10 @@ import { definePluginSettings } from "@api/Settings";
 import { Logger } from "@utils/Logger";
 import { useAwaiter } from "@utils/react";
 import { OptionType } from "@utils/types";
-import { findByPropsLazy } from "@webpack";
-import { ChannelStore, NavigationRouter, SelectedChannelStore, SelectedGuildStore, showToast, Toasts, useCallback, UserStore, useState } from "@webpack/common";
+import { findByPropsLazy, findStoreLazy } from "@webpack";
+import { ChannelStore, GuildChannelStore, NavigationRouter, SelectedChannelStore, SelectedGuildStore, showToast, Toasts, useCallback, UserStore, useState } from "@webpack/common";
 
 import ChannelTabsPreview from "./components/ChannelTabsPreview";
-
 
 export type BasicChannelTabsProps = {
     guildId: string;
@@ -153,6 +152,7 @@ export const channelTabsSettings = definePluginSettings({
 
 export const { ackChannel } = findByPropsLazy("ackChannel");
 export const { CircleQuestionIcon } = findByPropsLazy("CircleQuestionIcon");
+const SortedGuildStore = findStoreLazy("SortedGuildStore");
 
 function replaceArray<T>(array: T[], ...values: T[]) {
     const len = array.length;
@@ -344,6 +344,25 @@ function reopenClosedTab() {
     createTab(tab, true);
 }
 
+function sortTabs() {
+    const sortedGuilds: string[] = ["@me", "@favorites", ...SortedGuildStore.getFlattenedGuildIds()];
+    openTabs.sort((a, b) => {
+        const agp = sortedGuilds.indexOf(a.guildId);
+        const bgp = sortedGuilds.indexOf(b.guildId);
+        if (agp !== bgp) return agp - bgp;
+        if (a.guildId === "@me") {
+
+        } else {
+            const sortedChannels: string[] = GuildChannelStore.getSelectableChannels(a.guildId).sort((ca, cb) => ca.comparator - cb.comparator).map(c => c.channel.id);
+            const acp = sortedChannels.indexOf(a.channelId);
+            const bcp = sortedChannels.indexOf(b.channelId);
+            if (acp !== bcp) return acp - bcp;
+        }
+        return 0;
+    });
+    update();
+}
+
 const saveTabs = async (userId: string) => {
     if (!userId) return;
 
@@ -485,5 +504,5 @@ function useBookmarks(userId: string): UseBookmark {
 export const ChannelTabsUtils = {
     bookmarkPlaceholderName, closeOtherTabs, closeTab, closedTabs, closeTabsToTheRight, createTab,
     handleChannelSwitch, isTabSelected, getCurrentTabId, moveDraggedTabs, moveToTab, openTabHistory, openTabs,
-    openStartupTabs, reopenClosedTab, saveTabs, setUpdaterFunction, setTitleBarUpdaterFunction, switchChannel, toggleCompactTab, useBookmarks
+    openStartupTabs, reopenClosedTab, sortTabs, saveTabs, setUpdaterFunction, setTitleBarUpdaterFunction, switchChannel, toggleCompactTab, useBookmarks
 };

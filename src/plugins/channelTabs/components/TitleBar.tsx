@@ -102,7 +102,7 @@ export default function TitleBar() {
         onContextMenu={e => ContextMenuApi.openContextMenu(e, () => <BasicContextMenu />)}
     >
         <style className={cl("titlebar-height-style")}>
-            {`:root{--vc-channeltabs-titlebar-height-auto:${height}px !important;`}
+            {`:root{--vc-channeltabs-titlebar-height-auto:${height}px !important;}`}
         </style>
         <div className={classes(cl("titlebar"), cl(`tab-style-${tabStyle}`), ...[cl("maximized")].filter(() => isMaximized && compactWhenMaximized))}>
             {showHomeButton && <>
