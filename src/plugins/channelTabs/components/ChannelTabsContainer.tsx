@@ -23,7 +23,7 @@ import { ContextMenuApi, FluxDispatcher, React, SelectedChannelStore, SelectedGu
 
 import { ChannelTabsUtils } from "../util";
 import ChannelTab from "./ChannelTab";
-import { TabContextMenu } from "./ContextMenus";
+import { ChannelPickerContextMenu, TabContextMenu } from "./ContextMenus";
 
 const {
     closeTab, createTab, handleChannelSwitch, isTabSelected,
@@ -135,6 +135,7 @@ export default function ChannelsTabsContainer() {
         <button
             onClick={() => createTab(props, true)}
             className={clab("new")}
+            onContextMenu={e => ContextMenuApi.openContextMenu(e, () => <ChannelPickerContextMenu />)}
         >
             <PlusSmallIcon height={20} width={20} />
         </button>
