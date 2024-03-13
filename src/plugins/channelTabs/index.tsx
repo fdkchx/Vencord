@@ -101,7 +101,7 @@ export default definePlugin({
             find: ".wordmarkWindows,",
             replacement: {
                 match: /switch\(\i\)\{/,
-                replace: "if (!('windowKey' in arguments[0])) return $self.renderTitleBar(); switch(null){"
+                replace: "if (!arguments[0].windowKey) return $self.renderTitleBar(); switch(null){"
             }
         },
         // ctrl click to open in new tab in inbox unread
