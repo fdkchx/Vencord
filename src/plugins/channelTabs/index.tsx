@@ -96,20 +96,12 @@ export default definePlugin({
         //         replace: "$1$self.render,{currentChannel:$2,"
         //     }
         // },
-        // mark if window is a popout so we don't inject a broken titlebar into popouts
-        {
-            find: ".wordmarkWindows,",
-            replacement: {
-                match: /function\s(\i)\((\i)\)\{let\{focused:/,
-                replace: "function $1($2){const vcChannelTabsSpecialWindow='windowKey' in $2;let{focused:"
-            }
-        },
         // add the channel tab container at the top
         {
             find: ".wordmarkWindows,",
             replacement: {
                 match: /switch\(\i\)\{/,
-                replace: "if (!vcChannelTabsSpecialWindow) return $self.renderTitleBar(); switch(null){"
+                replace: "if (!arguments[0].windowKey) return $self.renderTitleBar(); switch(null){"
             }
         },
         // ctrl click to open in new tab in inbox unread
