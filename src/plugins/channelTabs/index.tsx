@@ -96,12 +96,20 @@ export default definePlugin({
         //         replace: "$1$self.render,{currentChannel:$2,"
         //     }
         // },
+        // mark if window is a popout so we don't inject a broken titlebar into popouts
+        {
+            find: ".wordmarkWindows,",
+            replacement: {
+                match: /function\s(\i)\((\i)\)\{let\{focused:/,
+                replace: "function $1($2){const vcChannelTabsSpecialWindow='windowKey' in $2;let{focused:"
+            }
+        },
         // add the channel tab container at the top
         {
             find: ".wordmarkWindows,",
             replacement: {
                 match: /switch\(\i\)\{/,
-                replace: "return $self.renderTitleBar(); switch(null){"
+                replace: "if (!vcChannelTabsSpecialWindow) return $self.renderTitleBar(); switch(null){"
             }
         },
         // ctrl click to open in new tab in inbox unread
@@ -164,6 +172,9 @@ export default definePlugin({
 
     containerHeight: 0,
 
+    shouldRenderTitleBar() {
+        return !location.pathname.startsWith("/popout");
+    },
     renderTitleBar() {
         return <ErrorBoundary>
             <TitleBar />
