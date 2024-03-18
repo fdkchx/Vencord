@@ -15,7 +15,7 @@ export default definePlugin({
     description: "Releasing right click when hovering over a context menu entry selects it, bringing the behaviour in line with other apps",
     authors: [Devs.Sqaaakoi],
     pointerUpEventHandler(e: PointerEvent) {
-        const target = e.target as HTMLElement | null;
+        let target = e.target as HTMLElement | null;
         if (!target || e.button !== 2) return;
         let parent = target.parentElement;
         try {
@@ -23,7 +23,12 @@ export default definePlugin({
                 parent = parent.parentElement;
             }
         } catch (err) { return console.error(err); }
-        if (parent) target.click();
+        if (parent) {
+            while (target && !target?.click) {
+                target = target?.parentElement;
+            }
+            target?.click();
+        }
     },
     start() {
         document.body.addEventListener("pointerup", this.pointerUpEventHandler);
