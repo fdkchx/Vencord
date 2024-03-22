@@ -18,7 +18,7 @@
 
 import { classes } from "@utils/misc";
 import { useForceUpdater } from "@utils/react";
-import { findByPropsLazy } from "@webpack";
+import { findByPropsLazy, findStoreLazy } from "@webpack";
 import { ContextMenuApi, FluxDispatcher, NavigationRouter, React, useEffect, useRef, UserStore, useState } from "@webpack/common";
 
 import { channelTabsSettings as settings, ChannelTabsUtils } from "../util";
@@ -32,6 +32,7 @@ import WindowButtons from "./WindowButtons";
 const { setTitleBarUpdaterFunction } = ChannelTabsUtils;
 
 const { ClydeIcon } = findByPropsLazy("ClydeIcon");
+const DefaultRouteStore = findStoreLazy("DefaultRouteStore");
 
 export const cl = (name: string) => `vc-channeltabs-${name}`;
 export const clab = (name: string) => classes(cl("button"), cl("action-button"), cl(`${name}-button`), cl("hoverable"));
@@ -107,7 +108,7 @@ export default function TitleBar() {
         <div className={classes(cl("titlebar"), cl(`tab-style-${tabStyle}`), ...[cl("maximized")].filter(() => isMaximized && compactWhenMaximized))}>
             {showHomeButton && <>
                 <button
-                    onClick={() => NavigationRouter.transitionTo("/channels/@me")}
+                    onClick={() => NavigationRouter.transitionTo(DefaultRouteStore.defaultRoute)}
                     className={clab("home")}
                 >
                     <ClydeIcon height={20} width={20} color="currentColor" />
