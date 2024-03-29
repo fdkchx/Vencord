@@ -70,10 +70,11 @@ export default function TitleBar() {
         setTitleBarUpdaterFunction(update);
         const onLogin = () => {
             update();
-            const { id } = UserStore.getCurrentUser();
-            if (id === userId) return;
+            const { id } = UserStore.getCurrentUser() || {};
+            if (!id || (id === userId)) return;
             setUserId(id);
         };
+        onLogin();
 
         FluxDispatcher.subscribe("CONNECTION_OPEN_SUPPLEMENTAL", onLogin);
         return () => {
@@ -116,10 +117,7 @@ export default function TitleBar() {
                 {userId && <TotalMentionsBadge />}
             </>}
             <ChannelsTabsContainer />
-            <div
-                className={classes(cl("spacer"))}
-            >
-            </div>
+            <div className={classes(cl("spacer"))} />
             {userId && <QuickSwitcherButton />}
             {IS_VESKTOP && <WindowButtons />}
         </div >
@@ -129,3 +127,4 @@ export default function TitleBar() {
         </>}
     </div>;
 }
+

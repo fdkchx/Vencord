@@ -68,12 +68,13 @@ export default function ChannelsTabsContainer() {
     useEffect(() => {
         setUpdaterFunction(update);
         const onLogin = () => {
-            const { id } = UserStore.getCurrentUser();
-            if (id === userId && openTabs.length) return;
+            const { id } = UserStore.getCurrentUser() || {};
+            if (!id || (id === userId && openTabs.length)) return;
             setUserId(id);
 
             openStartupTabs({ ...props, userId: id }, setUserId);
         };
+        onLogin();
 
         FluxDispatcher.subscribe("CONNECTION_OPEN_SUPPLEMENTAL", onLogin);
         return () => {
