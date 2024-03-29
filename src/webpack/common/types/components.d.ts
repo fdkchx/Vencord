@@ -454,3 +454,7 @@ export type Avatar = ComponentType<PropsWithChildren<{
     "aria-hidden"?: boolean;
     "aria-label"?: string;
 }>>;
+
+type FocusLock = ComponentType<PropsWithChildren<{
+    containerRef: RefObject<HTMLElement>
+}>>;

@@ -45,9 +45,8 @@ export let GuildChannelStore: GenericStore;
 export let ReadStateStore: GenericStore;
 export let PresenceStore: GenericStore;
 export let TypingStore: GenericStore;
-export let PoggerModeSettingsStore: GenericStore;
 
-export let GuildStore: Stores.GuildStore & t.FluxStore;
+export let GuildStore: t.GuildStore;
 export let UserStore: Stores.UserStore & t.FluxStore;
 export let UserProfileStore: GenericStore;
 export let SelectedChannelStore: Stores.SelectedChannelStore & t.FluxStore;
