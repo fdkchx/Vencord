@@ -20,6 +20,22 @@ This is a list of features in this fork.
     -   VoiceJoinMessages (work in progress)
         -   Sends you notifications from your friends' DMs when they join a voice channel.
         -   Helpful if you forget to check in and see if your friends are all online in VC.
+    -   BetterQuickReact (PR submitted to upstream)
+        -   Customise the emoji grid size visible in the message context menu
+        -   Sort by frequently used instead of favourites first (originally developed by Vee)
+    -   (Better)ChannelTabs
+        -   Custom fork of ChannelTabs that replaces the stock Discord titlebar
+        -   Adds keybinds
+        -   Adds a home logo button with a mention counter
+        -   Fixes tab hitbox size
+    -   WebKeybinds
+        -   Compatibility with BetterChannelTabs
+    -   ContextMenuSelectFix
+        -   Allows you to hold right click to open a context menu and then drag your mouse to the item and release to click it
+    -   ReactCommandReplyFix
+        -   Fixes the +:emoji: built-in command to add the emoji to the message you are replying to
+    -   TypingIndicator (modifications)
+        -   Adds avatars for users who are typing, disabled by default (PR submitted to upstream)
 
 
 ## Installing
