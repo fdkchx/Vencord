@@ -143,7 +143,7 @@ export default definePlugin({
                 match: /(\.guildSettingsSection\).{0,30})},\[/,
                 replace: "$1;$self.onAppDirectoryClose()},["
             }
-        }
+        },
     ],
 
     settings,

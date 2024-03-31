@@ -25,6 +25,7 @@ import { channelTabsSettings as settings, ChannelTabsUtils } from "../util";
 import BookmarkContainer from "./BookmarkContainer";
 import ChannelsTabsContainer from "./ChannelTabsContainer";
 import { BasicContextMenu } from "./ContextMenus";
+import OverrideCSS from "./OverrideCSS";
 import QuickSwitcherButton from "./QuickSwitcherButton";
 import TotalMentionsBadge from "./TotalMentionsBadge";
 import WindowButtons from "./WindowButtons";
@@ -70,10 +71,11 @@ export default function TitleBar() {
         setTitleBarUpdaterFunction(update);
         const onLogin = () => {
             update();
-            const { id } = UserStore.getCurrentUser();
-            if (id === userId) return;
+            const { id } = UserStore.getCurrentUser() || {};
+            if (!id || (id === userId)) return;
             setUserId(id);
         };
+        onLogin();
 
         FluxDispatcher.subscribe("CONNECTION_OPEN_SUPPLEMENTAL", onLogin);
         return () => {
@@ -102,9 +104,7 @@ export default function TitleBar() {
         ref={ref}
         onContextMenu={e => ContextMenuApi.openContextMenu(e, () => <BasicContextMenu />)}
     >
-        <style className={cl("titlebar-height-style")}>
-            {`:root{--vc-channeltabs-titlebar-height-auto:${height}px !important;}`}
-        </style>
+        <OverrideCSS className={cl("titlebar-height-style")} height={height} />
         <div className={classes(cl("titlebar"), cl(`tab-style-${tabStyle}`), ...[cl("maximized")].filter(() => isMaximized && compactWhenMaximized))}>
             {showHomeButton && <>
                 <button
@@ -116,10 +116,7 @@ export default function TitleBar() {
                 {userId && <TotalMentionsBadge />}
             </>}
             <ChannelsTabsContainer />
-            <div
-                className={classes(cl("spacer"))}
-            >
-            </div>
+            <div className={classes(cl("spacer"))} />
             {userId && <QuickSwitcherButton />}
             {IS_VESKTOP && <WindowButtons />}
         </div >
@@ -129,3 +126,4 @@ export default function TitleBar() {
         </>}
     </div>;
 }
+
