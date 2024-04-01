@@ -283,7 +283,7 @@ export default function BookmarkContainer(props: { userId: string; }) {
                 <StarIcon
                     height={20}
                     width={20}
-                    colorClass={isCurrentChannelBookmarked ? cl("bookmark-star-checked") : cl("bookmark-star")}
+                    colorClass={classes(cl("bookmark-star"), isCurrentChannelBookmarked ? cl("bookmark-star-checked") : null)}
                 />
             </button>}
         </Tooltip>

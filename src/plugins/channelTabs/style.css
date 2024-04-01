@@ -116,14 +116,15 @@
 }
 
 .vc-channeltabs-bookmark-star-checked {
-    fill: var(--yellow-300);
+    fill: var(--text-muted);
+
 }
 
 .vc-channeltabs-bookmark {
     display: flex;
     flex-direction: row;
     max-width: 8rem;
-    padding: 0.25rem 0.5rem;
+    padding: 0.1875rem 0.5rem;
     border-radius: 0.25rem;
 }
 
@@ -345,14 +346,6 @@
     text-overflow: ellipsis;
 }
 
-
-[class*="standardSidebarView_"],
-[class*="app_"] > [class*="bg_"] {
-    top: -36px;
+[style]:has(> [id^="channeltabs"]) {
+    top: var(--vc-channeltabs-custom-titlebar-height)
 }
-
-[class*="app_"] > [class*="layers_"] > [class*="layer_"] {
-    top: -36px;
-    padding-top: 36px;
-}
-
