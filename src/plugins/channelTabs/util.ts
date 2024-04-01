@@ -35,6 +35,7 @@ export interface ChannelTabsProps extends BasicChannelTabsProps {
     messageId?: string;
     id: number;
 }
+
 interface PersistedTabs {
     [userId: string]: {
         openTabs: ChannelTabsProps[],
@@ -374,6 +375,13 @@ const saveTabs = async (userId: string) => {
     });
 };
 
+function saveFromHistoryChange() {
+    const { id } = UserStore.getCurrentUser() || {};
+    if (!id) return;
+    console.log("Saved!");
+    return saveTabs(id);
+}
+
 function setOpenTab(id: number) {
     const i = openTabs.findIndex(v => v.id === id);
     if (i === -1) return logger.error("Couldn't find channel tab with ID " + id, openTabs);
@@ -504,5 +512,5 @@ function useBookmarks(userId: string): UseBookmark {
 export const ChannelTabsUtils = {
     bookmarkPlaceholderName, closeOtherTabs, closeTab, closedTabs, closeTabsToTheRight, createTab,
     handleChannelSwitch, isTabSelected, getCurrentTabId, moveDraggedTabs, moveToTab, openTabHistory, openTabs,
-    openStartupTabs, reopenClosedTab, sortTabs, saveTabs, setUpdaterFunction, setTitleBarUpdaterFunction, switchChannel, toggleCompactTab, useBookmarks
+    openStartupTabs, reopenClosedTab, sortTabs, saveTabs, saveFromHistoryChange, setUpdaterFunction, setTitleBarUpdaterFunction, switchChannel, toggleCompactTab, useBookmarks
 };

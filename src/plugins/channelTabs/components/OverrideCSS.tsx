@@ -30,15 +30,23 @@ const selectors: LazyCSS[] = [
     },
     {
         classes: ["sidebar", "downloadProgressCircle"],
-        properties: "border-radius:0;\noverflow:hidden;"
+        properties: "border-radius: 0;\noverflow: hidden;"
     },
     {
         classes: ["layer", "bg", "baseLayer"],
-        properties: "top: calc(-1 * var(--vc-channeltabs-titlebar-height));]\npadding-top: var(--vc-channeltabs-titlebar-height);"
+        properties: "top: calc(-1 * var(--vc-channeltabs-titlebar-height));\npadding-top: var(--vc-channeltabs-titlebar-height);"
     },
     {
         classes: ["bg", "layer", "baseLayer"],
         properties: "top: calc(-1 * var(--vc-channeltabs-titlebar-height));"
+    },
+
+    // Fixes unrelated to Discord's own titlebar height
+
+    // Context menu overlapping
+    {
+        classes: ["layerContainer", "layerHidden"],
+        properties: "top: var(--vc-channeltabs-titlebar-height);"
     }
 ];
 
@@ -49,7 +57,7 @@ function InjectCSSWhenReady(props: { selector: LazyCSS; }) {
         if (!className) setClassName(`body #app-mount .${(module[lc.classes[0]] as unknown as string).replaceAll(" ", ".")}${lc.suffix ? " " + lc.suffix : ""}`);
     });
     return <style>
-        {className.length ? (`${className} {\n${lc.properties}\n}`) : "// Webpack find not finished yet "}
+        {className.length ? (`${className} {\n${lc.properties}\n}`) : "/* Webpack find not finished yet */"}
     </style>;
 }
 

@@ -144,6 +144,13 @@ export default definePlugin({
                 replace: "$1;$self.onAppDirectoryClose()},["
             }
         },
+        {
+            find: "createBrowserHistory:",
+            replacement: {
+                match: /([push|replace]:function\(\i,\i\)\{.{0,400})(}\)},)/g,
+                replace: "$1; $self.util.saveFromHistoryChange();$2"
+            }
+        },
     ],
 
     settings,
