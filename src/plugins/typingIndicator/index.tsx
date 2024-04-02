@@ -33,7 +33,7 @@ const UserSummaryItem = findComponentByCodeLazy("defaultRenderUser", "showDefaul
 const TypingStore = findStoreLazy("TypingStore");
 const UserGuildSettingsStore = findStoreLazy("UserGuildSettingsStore");
 
-enum IndicatorMode {
+const enum IndicatorMode {
     Dots = 1 << 0,
     Avatars = 1 << 1
 }
@@ -96,29 +96,27 @@ function TypingIndicator({ channelId }: { channelId: string; }) {
 
     if (typingUsersArray.length > 0) {
         return (
-            <div className="vc-typing-indicator">
-                {((settings.store.indicatorMode & IndicatorMode.Avatars) === IndicatorMode.Avatars) && <UserSummaryItem
-                    users={typingUsersArray.map(id => UserStore.getUser(id))}
-                    guildId={guildId}
-                    renderIcon={false}
-                    max={3}
-                    showDefaultAvatarsForNullUsers
-                    showUserPopout
-                    // renderMoreUsers={() => { return null; }}
-                    size={16}
-                    className="vc-typing-indicator-avatars"
-                />}
-                {((settings.store.indicatorMode & IndicatorMode.Dots) === IndicatorMode.Dots) && <Tooltip text={tooltipText!}>
-                    {props => (
-                        <div
-                            {...props}
+            <Tooltip text={tooltipText!}>
+                {props => (
+                    <div className="vc-typing-indicator" {...props}>
+                        {((settings.store.indicatorMode & IndicatorMode.Avatars) === IndicatorMode.Avatars) && <UserSummaryItem
+                            users={typingUsersArray.map(id => UserStore.getUser(id))}
+                            guildId={guildId}
+                            renderIcon={false}
+                            max={3}
+                            showDefaultAvatarsForNullUsers
+                            showUserPopout
+                            size={16}
+                            className="vc-typing-indicator-avatars"
+                        />}
+                        {((settings.store.indicatorMode & IndicatorMode.Dots) === IndicatorMode.Dots) && <div
                             className="vc-typing-indicator-dots"
                         >
                             <ThreeDots dotRadius={3} themed={true} />
-                        </div>
-                    )}
-                </Tooltip>}
-            </div >
+                        </div>}
+                    </div>
+                )}
+            </Tooltip>
         );
     }
 
@@ -155,7 +153,7 @@ const settings = definePluginSettings({
 export default definePlugin({
     name: "TypingIndicator",
     description: "Adds an indicator if someone is typing on a channel.",
-    authors: [Devs.Nuckyz, Devs.fawn],
+    authors: [Devs.Nuckyz, Devs.fawn, Devs.Sqaaakoi],
     settings,
 
     patches: [
