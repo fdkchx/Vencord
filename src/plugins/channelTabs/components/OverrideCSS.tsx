@@ -47,6 +47,11 @@ const selectors: LazyCSS[] = [
     {
         classes: ["layerContainer", "layerHidden"],
         properties: "top: var(--vc-channeltabs-titlebar-height);"
+    },
+    // User profile popouts
+    {
+        classes: ["userPopoutInner"],
+        properties: "max-height: calc(100vh - 28px - var(--custom-user-popout-outside-components-height) - var(--vc-channeltabs-titlebar-height));"
     }
 ];
 
