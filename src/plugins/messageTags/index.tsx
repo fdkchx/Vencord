@@ -17,17 +17,23 @@
 */
 
 import { ApplicationCommandInputType, ApplicationCommandOptionType, BUILT_IN, Command, findOption, registerCommand, sendBotMessage, unregisterCommand, unregisterCommandById } from "@api/Commands";
+import { NavContextMenuPatchCallback } from "@api/ContextMenu";
 import * as DataStore from "@api/DataStore";
-import { definePluginSettings, Settings } from "@api/Settings";
+import { definePluginSettings } from "@api/Settings";
 import { Devs } from "@utils/constants";
 import { sendMessage } from "@utils/discord";
 import definePlugin, { OptionType } from "@utils/types";
-import { SnowflakeUtils } from "@webpack/common";
+import { findByPropsLazy, findExportedComponentLazy } from "@webpack";
+import { Menu, SnowflakeUtils } from "@webpack/common";
+import { Channel } from "discord-types/general";
 
 import TagsList, { openEditor } from "./TagsList";
 
 const LEGACY_DATA_KEY = "MessageTags_TAGS";
 const MessageTagsMarker = Symbol("MessageTags");
+
+const TagIcon = findExportedComponentLazy("TagIcon");
+const OptionClasses = findByPropsLazy("optionName", "optionIcon", "optionLabel");
 
 export interface Tag {
     name: string;
@@ -76,10 +82,10 @@ function createTagCommand(tag: Tag) {
         inputType: ApplicationCommandInputType.BUILT_IN_TEXT,
         execute: async (_, ctx) => {
             if (!hasTagById(tag.id)) return;
-            if (Settings.plugins.MessageTags.clyde) sendBotMessage(ctx.channel.id, {
+            if (settings.store.clyde) sendBotMessage(ctx.channel.id, {
                 content: `The tag **${tag.name}** has been sent!`
             });
-            return { content: getTagById(tag.id)!.message };
+            sendMessage(ctx.channel.id, { content: getTagById(tag.id)!.message });
         },
         [MessageTagsMarker]: true,
     }, "Tags", false);
@@ -120,7 +126,7 @@ async function start() {
             const tagName = args[0]?.name;
             if (!tagName) return;
             if (!hasTagById(tagName)) return;
-            if (Settings.plugins.MessageTags.clyde) sendBotMessage(ctx.channel.id, {
+            if (settings.store.clyde) sendBotMessage(ctx.channel.id, {
                 content: `The tag **${getTagById(tagName)!.name}** has been sent!`
             });
             sendMessage(ctx.channel.id, { content: getTagById(tagName)!.message });
@@ -130,6 +136,32 @@ async function start() {
     registerCommand({ ...command }, "MessageTags");
     registerCommand({ ...command, name: "t" }, "MessageTags");
 }
+
+const attachmentsMenuPatch: NavContextMenuPatchCallback = (children, props: { channel: Channel; }) => {
+    children.push(
+        <Menu.MenuItem
+            id="vc-messagetags"
+            label={<div className={OptionClasses.optionLabel}>
+                <TagIcon className={OptionClasses.optionIcon} height={24} width={24} />
+                <div className={OptionClasses.optionName}>Message Tags</div>
+            </div>}
+        >
+            {getTags().filter(t => t.enabled && t.name).map(tag => (
+                <Menu.MenuItem
+                    id={tag.id}
+                    label={tag.name}
+                    action={() => {
+                        if (!hasTagById(tag.id)) return;
+                        if (settings.store.clyde) sendBotMessage(props.channel.id, {
+                            content: `The tag **${tag.name}** has been sent!`
+                        });
+                        sendMessage(props.channel.id, { content: getTagById(tag.id)!.message });
+                    }}
+                />
+            ))}
+        </Menu.MenuItem>
+    );
+};
 
 export default definePlugin({
     name: "MessageTags",
@@ -142,9 +174,11 @@ export default definePlugin({
     async stop() {
         cleanupTagCommands();
     },
-
     toolboxActions: {
         "Open Tag Editor": openEditor
+    },
+    contextMenus: {
+        "channel-attach": attachmentsMenuPatch
     },
 
     commands: [
@@ -273,7 +307,7 @@ export default definePlugin({
                                     // @ts-ignore
                                     title: "All Tags",
                                     // @ts-ignore
-                                    description: (getTags())
+                                    description: getTags().filter(t => t.enabled && t.name)
                                         .map(tag => `\`${tag.name}\`: ${tag.message.slice(0, 72)}${tag.message.length > 72 ? "..." : ""}`)
                                         .join("\n") || "There are no tags yet, use `/tags create` to create one!",
                                     // @ts-ignore
