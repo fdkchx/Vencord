@@ -97,6 +97,22 @@ ${makeCodeblock(enabledPlugins.join(", ") + "\n\n" + enabledApiPlugins.join(", "
         async CHANNEL_SELECT({ channelId }) {
             if (channelId !== SUPPORT_CHANNEL_ID) return;
 
+            if (IS_DEV) return Alerts.show({
+                title: "You are entering the support channel!",
+                body: <div>
+                    <style>
+                        {'[class*="backdrop_"][style*="backdrop-filter"]{backdrop-filter:blur(16px) brightness(0.25) !important;}'}
+                    </style>
+                    <Forms.FormText>Are you sure you want to do this?</Forms.FormText>
+                    <Forms.FormText>The support channel is full of brainrotted idiots,</Forms.FormText>
+                    <Forms.FormText>potentially including you!</Forms.FormText>
+                    <Forms.FormText>Are you sure you're up to date with upstream?</Forms.FormText>
+                    <Forms.FormText>Are you ready to endure other people's brainrot?</Forms.FormText>
+                </div>,
+                confirmText: "Get mental health support",
+                onConfirm: () => history.back()
+            });
+
             if (isPluginDev(UserStore.getCurrentUser().id)) return;
 
             if (isOutdated && gitHash !== await DataStore.get(REMEMBER_DISMISS_KEY)) {
