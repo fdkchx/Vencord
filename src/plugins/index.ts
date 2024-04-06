@@ -185,7 +185,7 @@ export const stopPlugin = traceFunction("stopPlugin", function stopPlugin(p: Plu
         logger.info("Unregistering commands of plugin", name);
         for (const cmd of commands) {
             try {
-                unregisterCommand(cmd.name);
+                unregisterCommand(cmd.name, name);
             } catch (e) {
                 logger.error(`Failed to unregister command ${cmd.name}\n`, e);
                 return false;

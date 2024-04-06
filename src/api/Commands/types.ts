@@ -53,6 +53,7 @@ export interface Option {
     description: string;
     displayDescription?: string;
     required?: boolean;
+    id?: string;
     options?: Option[];
     choices?: Array<ChoicesOption>;
 }

@@ -86,8 +86,8 @@ export const _handleCommand = function (cmd: Command, args: Argument[], ctx: Com
  * @param opt
  */
 export function prepareOption<O extends Option | Command>(opt: O): O {
-    opt.displayName ||= opt.name;
-    opt.displayDescription ||= opt.description;
+    opt.displayName ??= opt.name;
+    opt.displayDescription ??= opt.description;
     opt.options?.forEach((opt, i, opts) => {
         // See comment above Placeholders
         if (opt === OptPlaceholder) opts[i] = OptionalMessageOption;
@@ -111,8 +111,8 @@ function registerSubCommands(cmd: Command, plugin: string) {
             ...o,
             type: ApplicationCommandType.CHAT_INPUT,
             name: `${cmd.name} ${o.name}`,
-            id: `${o.name}-${cmd.id}`,
-            displayName: `${cmd.name} ${o.name}`,
+            id: o.id || `${o.name}-${cmd.id}`,
+            displayName: `${cmd.displayName} ${o.displayName}`,
             subCommandPath: [{
                 name: o.name,
                 type: o.type,
@@ -124,7 +124,7 @@ function registerSubCommands(cmd: Command, plugin: string) {
     });
 }
 
-export function registerCommand<C extends Command>(command: C, plugin: string) {
+export function registerCommand<C extends Command>(command: C, plugin: string, checkForExistingCommand: boolean = true) {
     if (!BUILT_IN) {
         console.warn(
             "[CommandsAPI]",
@@ -134,7 +134,7 @@ export function registerCommand<C extends Command>(command: C, plugin: string) {
         return;
     }
 
-    if (BUILT_IN.some(c => c.name === command.name))
+    if (BUILT_IN.some(c => c.name === command.name) && checkForExistingCommand)
         throw new Error(`Command '${command.name}' already exists.`);
 
     command.isVencordCommand = true;
@@ -155,13 +155,24 @@ export function registerCommand<C extends Command>(command: C, plugin: string) {
     BUILT_IN.push(command);
 }
 
-export function unregisterCommand(name: string) {
-    const idx = BUILT_IN.findIndex(c => c.name === name);
+export function unregisterCommand(name: string, plugin?: string) {
+    const idx = BUILT_IN.findIndex(c => c.name === name && (plugin ? c.plugin === plugin : true));
     if (idx === -1)
         return false;
 
     BUILT_IN.splice(idx, 1);
     delete commands[name];
+
+    return true;
+}
+
+export function unregisterCommandById(id: string, plugin?: string) {
+    const idx = BUILT_IN.findIndex(c => c.id === id && (plugin ? c.plugin === plugin : true));
+    delete commands[BUILT_IN[idx].name];
+    if (idx === -1)
+        return false;
+
+    BUILT_IN.splice(idx, 1);
 
     return true;
 }
