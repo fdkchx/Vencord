@@ -13,7 +13,7 @@ import { classes, closeModal, ModalCloseButton, ModalContent, ModalHeader, Modal
 import { findByPropsLazy } from "@webpack";
 import { Button, Card, ScrollerThin, SnowflakeUtils, Text, TextArea, TextInput, Tooltip, useState } from "@webpack/common";
 
-import { settings, Tag } from "./index";
+import { init, settings, Tag } from "./index";
 
 const cl = classNameFactory("vc-messagetags-");
 
@@ -29,7 +29,7 @@ export function openEditor() {
 
             <ModalContent>
                 <ScrollerThin>
-                    <TagsList setValue={v => (settings.store.tags = v)} />
+                    <TagsList setValue={v => { settings.store.tags = v; init(); }} />
                 </ScrollerThin>
             </ModalContent>
         </ModalRoot>

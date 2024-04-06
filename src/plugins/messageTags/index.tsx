@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { ApplicationCommandInputType, ApplicationCommandOptionType, BUILT_IN, Command, findOption, registerCommand, sendBotMessage, unregisterCommand, unregisterCommandById } from "@api/Commands";
+import { ApplicationCommandInputType, ApplicationCommandOptionType, BUILT_IN, Command, findOption, registerCommand, sendBotMessage, unregisterCommandById } from "@api/Commands";
 import { NavContextMenuPatchCallback } from "@api/ContextMenu";
 import * as DataStore from "@api/DataStore";
 import { definePluginSettings } from "@api/Settings";
@@ -30,7 +30,7 @@ import { Channel } from "discord-types/general";
 import TagsList, { openEditor } from "./TagsList";
 
 const LEGACY_DATA_KEY = "MessageTags_TAGS";
-const MessageTagsMarker = Symbol("MessageTags");
+const MessageTagsPluginMarker = Symbol("MessageTagsPlugin");
 
 const TagIcon = findExportedComponentLazy("TagIcon");
 const OptionClasses = findByPropsLazy("optionName", "optionIcon", "optionLabel");
@@ -47,6 +47,7 @@ async function migrateLegacyTags() {
     const migratedTags = await DataStore.get(LEGACY_DATA_KEY).then<Tag[]>(t => t ?? []);
     const tags = [...getTags(), ...migratedTags.map(i => ({ ...i, message: i.message.replaceAll("\\n", "\n"), id: SnowflakeUtils.fromTimestamp(Date.now()) }))];
     settings.store.tags = JSON.stringify(tags);
+    settings.store.rootLevelCommands = true; // Keep legacy behaviour enabled for older users
     DataStore.del(LEGACY_DATA_KEY);
 }
 
@@ -68,17 +69,15 @@ const removeTag = (name: string) => {
 };
 
 function cleanupTagCommands() {
-    BUILT_IN.filter(c => c[MessageTagsMarker]).forEach(c => unregisterCommandById(c.id!, "Tags"));
-    unregisterCommand("tag", "MessageTags");
-    unregisterCommand("t", "MessageTags");
+    BUILT_IN.filter(c => c[MessageTagsPluginMarker]).forEach(c => unregisterCommandById(c.id!, c[MessageTagsPluginMarker]));
 }
 
 function createTagCommand(tag: Tag) {
+    if (!settings.store.rootLevelCommands) return;
     registerCommand({
         name: tag.name,
         description: tag.message.split("\n")[0],
         id: tag.id,
-        applicationId: tag.id,
         inputType: ApplicationCommandInputType.BUILT_IN_TEXT,
         execute: async (_, ctx) => {
             if (!hasTagById(tag.id)) return;
@@ -87,7 +86,7 @@ function createTagCommand(tag: Tag) {
             });
             sendMessage(ctx.channel.id, { content: getTagById(tag.id)!.message });
         },
-        [MessageTagsMarker]: true,
+        [MessageTagsPluginMarker]: "Tags",
     }, "Tags", false);
 }
 
@@ -97,7 +96,13 @@ export const settings = definePluginSettings({
         component: TagsList,
         type: OptionType.COMPONENT,
         default: "[]",
-        onChange: () => start()
+        onChange: () => init()
+    },
+    rootLevelCommands: {
+        description: "Register tags as /tag-name",
+        type: OptionType.BOOLEAN,
+        default: false,
+        onChange: () => init()
     },
     clyde: {
         description: "If enabled, Clyde will send you an ephemeral message when a tag was used.",
@@ -106,12 +111,11 @@ export const settings = definePluginSettings({
     }
 });
 
-async function start() {
-    await migrateLegacyTags();
+export async function init() {
     cleanupTagCommands();
     const tags = getTags().filter(t => t.enabled && t.name);
     for (const tag of tags) createTagCommand(tag);
-    const command: Command = {
+    const command: Command & { [MessageTagsPluginMarker]: string; } = {
         name: "tag",
         description: "Send predefined messages (tags)",
         inputType: ApplicationCommandInputType.BUILT_IN,
@@ -119,8 +123,11 @@ async function start() {
             name: tag.id,
             displayName: tag.name,
             description: tag.message.split("\n")[0],
+            id: tag.id,
             type: ApplicationCommandOptionType.SUB_COMMAND,
-            options: []
+            plugin: "Tags",
+            options: [],
+            [MessageTagsPluginMarker]: "Tags"
         })),
         async execute(args, ctx) {
             const tagName = args[0]?.name;
@@ -131,7 +138,8 @@ async function start() {
             });
             sendMessage(ctx.channel.id, { content: getTagById(tagName)!.message });
             return;
-        }
+        },
+        [MessageTagsPluginMarker]: "MessageTags"
     };
     registerCommand({ ...command }, "MessageTags");
     registerCommand({ ...command, name: "t" }, "MessageTags");
@@ -170,7 +178,10 @@ export default definePlugin({
     settings,
     dependencies: ["CommandsAPI"],
 
-    start,
+    async start() {
+        await migrateLegacyTags();
+        return init();
+    },
     async stop() {
         cleanupTagCommands();
     },
@@ -275,13 +286,12 @@ export default definePlugin({
                             id: SnowflakeUtils.fromTimestamp(Date.now())
                         };
 
-                        createTagCommand(tag);
                         addTag(tag);
 
                         sendBotMessage(ctx.channel.id, {
                             content: `Successfully created the tag **${name}**!`
                         });
-                        start();
+                        init();
                         break; // end 'create'
                     }
                     case "delete": {
@@ -292,12 +302,12 @@ export default definePlugin({
                                 content: `A Tag with the name **${name}** does not exist!`
                             });
 
-                        await removeTag(name);
+                        removeTag(name);
 
                         sendBotMessage(ctx.channel.id, {
                             content: `Successfully deleted the tag **${name}**!`
                         });
-                        start();
+                        init();
                         break; // end 'delete'
                     }
                     case "list": {
