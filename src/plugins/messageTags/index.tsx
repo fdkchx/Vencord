@@ -174,7 +174,7 @@ const attachmentsMenuPatch: NavContextMenuPatchCallback = (children, props: { ch
 export default definePlugin({
     name: "MessageTags",
     description: "Allows you to save messages and to use them with a simple command.",
-    authors: [Devs.Luna],
+    authors: [Devs.Luna, Devs.Sqaaakoi],
     settings,
     dependencies: ["CommandsAPI"],
 
