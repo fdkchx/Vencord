@@ -8,45 +8,54 @@ For more information and to support the Vencord project, see the **[upstream REA
 
 This is a list of features in this fork.
 
--   Plugins
-    -   AutoMute
-        -   Automatically mute yourself if you're silent for too long
-        -   Useful in case someone wants to talk to you in person and you forgot to mute.
-    -   ModViewBypass (PR submitted to upstream)
-        -   Allows you to view the experimental Guild Member Mod View sidebar menu without moderator permissions
-        -   Useful for telling if someone is a troll who joined and forgot about the guild for months.
-    -   VoiceChannelLog (work in progress)
-        -   Adds a log for voice channel join/leave/move events.
-    -   VoiceJoinMessages (work in progress)
-        -   Sends you notifications from your friends' DMs when they join a voice channel.
-        -   Helpful if you forget to check in and see if your friends are all online in VC.
-    -   BetterQuickReact (PR submitted to upstream)
-        -   Customise the emoji grid size visible in the message context menu
-        -   Sort by frequently used instead of favourites first (originally developed by Vee)
-    -   (Better)ChannelTabs
-        -   Custom fork of ChannelTabs that replaces the stock Discord titlebar
-        -   Adds keybinds
-        -   Adds a home logo button with a mention counter
-        -   Fixes tab hitbox size
-    -   WebKeybinds
-        -   Compatibility with BetterChannelTabs
-    -   ContextMenuSelectFix
-        -   Allows you to hold right click to open a context menu and then drag your mouse to the item and release to click it
-    -   ReactCommandReplyFix
-        -   Fixes the +:emoji: built-in command to add the emoji to the message you are replying to
-    -   TypingIndicator (modifications)
-        -   Adds avatars for users who are typing, disabled by default (PR submitted to upstream)
-    -   SupportHelper (modifications)
-        -   Add a mental health disclaimer. [Certified approved funny™️ by at least 25 Vencord users](https://canary.discord.com/channels/1015060230222131221/1032200195582197831/1226274249472348212)
-    -   MoreJumboEmoji
-        -   Customise the limit of jumbo emojis!
-    -   MoreGuildDiscoveryCategories
-        -   Adds the non-primary categories to the guild discovery sidebar
-    -   MessageTags (modifications)
-        -   Rewrite a lot of the plugin
-        -   Add an editor
-        -   Add submenu to attachments + menu
-        -   Add multiple tags with the same name
+## My plugins
+-   AutoMute
+    -   Automatically mute yourself if you're silent for too long
+    -   Useful in case someone wants to talk to you in person and you forgot to mute.
+-   ModViewBypass (PR submitted to upstream)
+    -   Allows you to view the experimental Guild Member Mod View sidebar menu without moderator permissions
+    -   Useful for telling if someone is a troll who joined and forgot about the guild for months.
+-   BetterQuickReact (PR submitted to upstream)
+    -   Customise the emoji grid size visible in the message context menu
+    -   Sort by frequently used instead of favourites first (originally developed by Vee)
+-   ContextMenuSelectFix
+    -   Allows you to hold right click to open a context menu and then drag your mouse to the item and release to click it
+-   ReactCommandReplyFix
+    -   Fixes the +:emoji: built-in command to add the emoji to the message you are replying to
+-   MoreJumboEmoji
+    -   Customise the limit of jumbo emojis!
+-   MoreGuildDiscoveryCategories
+    -   Adds the non-primary categories to the guild discovery sidebar
+## My unmaintained plugins
+-   VoiceChannelLog (work in progress)
+    -   Adds a log for voice channel join/leave/move events.
+-   VoiceJoinMessages (work in progress)
+    -   Sends you notifications from your friends' DMs when they join a voice channel.
+    -   Helpful if you forget to check in and see if your friends are all online in VC.
+## Modified plugins
+-   WebKeybinds
+    -   Compatibility with BetterChannelTabs
+-   TypingIndicator
+    -   Adds avatars for users who are typing, disabled by default (PR submitted to upstream)
+-   SupportHelper
+    -   Add a mental health disclaimer. [Certified approved funny™️ by at least 25 Vencord users](https://canary.discord.com/channels/1015060230222131221/1032200195582197831/1226274249472348212)
+-   MessageTags
+    -   Rewrite a lot of the plugin
+    -   Add an editor
+    -   Add submenu to attachments + menu
+    -   Add multiple tags with the same name
+## Other non-mainline plugins
+-   (Better)ChannelTabs (modified)
+    -   Custom fork of ChannelTabs that replaces the stock Discord titlebar
+    -   Upstream: https://github.com/sunnniee/Vencord/tree/channeltabs
+    -   Contains highly opinionated changes!
+    -   Adds keybinds
+    -   Adds a home logo button with a mention counter
+    -   Fixes tab hitbox size
+-   ValidReply
+    -   Fixes "Message could not be loaded" upon hovering over the reply
+    -   Developed by waresnew
+    -   Upstream: https://github.com/waresnew/Vencord/tree/validReply
 
 
 ## Installing
