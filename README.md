@@ -36,6 +36,17 @@ This is a list of features in this fork.
         -   Fixes the +:emoji: built-in command to add the emoji to the message you are replying to
     -   TypingIndicator (modifications)
         -   Adds avatars for users who are typing, disabled by default (PR submitted to upstream)
+    -   SupportHelper (modifications)
+        -   Add a mental health disclaimer. [Certified approved funny™️ by at least 25 Vencord users](https://canary.discord.com/channels/1015060230222131221/1032200195582197831/1226274249472348212)
+    -   MoreJumboEmoji
+        -   Customise the limit of jumbo emojis!
+    -   MoreGuildDiscoveryCategories
+        -   Adds the non-primary categories to the guild discovery sidebar
+    -   MessageTags (modifications)
+        -   Rewrite a lot of the plugin
+        -   Add an editor
+        -   Add submenu to attachments + menu
+        -   Add multiple tags with the same name
 
 
 ## Installing
