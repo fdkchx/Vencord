@@ -77,8 +77,8 @@ function createTagCommand(tag: Tag) {
     registerCommand({
         name: tag.name,
         description: tag.message.split("\n")[0],
-        id: tag.id,
-        inputType: ApplicationCommandInputType.BUILT_IN_TEXT,
+        id: "-" + tag.id,
+        inputType: ApplicationCommandInputType.BUILT_IN,
         execute: async (_, ctx) => {
             if (!hasTagById(tag.id)) return;
             if (settings.store.clyde) sendBotMessage(ctx.channel.id, {
@@ -115,15 +115,15 @@ export async function init() {
     cleanupTagCommands();
     const tags = getTags().filter(t => t.enabled && t.name);
     for (const tag of tags) createTagCommand(tag);
-    const command: Command & { [MessageTagsPluginMarker]: string; } = {
-        name: "tag",
+    const command: (name: string) => Command & { [MessageTagsPluginMarker]: string; } = t => ({
+        name: t,
         description: "Send predefined messages (tags)",
         inputType: ApplicationCommandInputType.BUILT_IN,
         options: tags.map(tag => ({
             name: tag.id,
             displayName: tag.name,
             description: tag.message.split("\n")[0],
-            id: tag.id,
+            id: "-" + tag.id + "+" + t,
             type: ApplicationCommandOptionType.SUB_COMMAND,
             plugin: "Tags",
             options: [],
@@ -137,12 +137,11 @@ export async function init() {
                 content: `The tag **${getTagById(tagName)!.name}** has been sent!`
             });
             sendMessage(ctx.channel.id, { content: getTagById(tagName)!.message });
-            return;
         },
         [MessageTagsPluginMarker]: "MessageTags"
-    };
-    registerCommand({ ...command }, "MessageTags");
-    registerCommand({ ...command, name: "t" }, "MessageTags");
+    });
+    registerCommand(command("tag"), "MessageTags");
+    registerCommand(command("t"), "MessageTags");
 }
 
 const attachmentsMenuPatch: NavContextMenuPatchCallback = (children, props: { channel: Channel; }) => {
