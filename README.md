@@ -36,7 +36,7 @@ This is a list of features in this fork.
 -   WebKeybinds
     -   Compatibility with BetterChannelTabs
 -   TypingIndicator
-    -   Adds avatars for users who are typing, disabled by default (PR submitted to upstream)
+    -   Adds avatars for users who are typing, enabled by default (PR merged into dev)
 -   SupportHelper
     -   Add a mental health disclaimer. [Certified approved funny™️ by at least 25 Vencord users](https://canary.discord.com/channels/1015060230222131221/1032200195582197831/1226274249472348212)
 -   MessageTags
