@@ -187,7 +187,8 @@ function patchFactories(factories: Record<string | number, (module: { exports: a
             if (patch.predicate && !patch.predicate()) continue;
 
             // we change all patch.find to array in plugins/index
-            if ((patch.find as string[]).every(f => code.includes(f))) {
+            // FIXME: emergency fix that will be overwritten by upstream later
+            if ((Array.isArray(patch.find) ? patch.find : (patch.find = [patch.find])).every(f => code.includes(f))) {
                 patchedBy.add(patch.plugin);
 
                 const previousMod = mod;
