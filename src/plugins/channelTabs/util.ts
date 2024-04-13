@@ -294,7 +294,7 @@ function moveToTab(id: number) {
     else update();
 }
 
-function openStartupTabs(props: BasicChannelTabsProps & { userId: string; }, setUserId: (id: string) => void) {
+function openStartupTabs(props: BasicChannelTabsProps & { userId: string; messageId?: string; }, setUserId: (id: string) => void) {
     const { userId } = props;
     persistedTabs ??= DataStore.get("ChannelTabs_openChannels_v2");
     replaceArray(openTabs);
@@ -316,8 +316,18 @@ function openStartupTabs(props: BasicChannelTabsProps & { userId: string; }, set
                 t.openTabs.forEach(tab => createTab(tab));
                 currentlyOpenTab = openTabs[t.openTabIndex]?.id ?? 0;
 
+
                 setUserId(userId);
+                // existing link handling
                 moveToTab(currentlyOpenTab);
+                if ((props.channelId !== openTabs[t.openTabIndex].channelId) || props.messageId) {
+                    if (props.channelId === openTabs[t.openTabIndex].channelId) {
+                        openTabs[t.openTabIndex].messageId = props.messageId;
+                        moveToTab(currentlyOpenTab);
+                    } else {
+                        createTab({ channelId: props.channelId, guildId: props.guildId }, true, props.messageId, true);
+                    }
+                }
             });
             break;
         }
@@ -334,7 +344,7 @@ function openStartupTabs(props: BasicChannelTabsProps & { userId: string; }, set
         }
     }
 
-    if (!openTabs.length) createTab({ channelId: props.channelId, guildId: props.guildId }, true, undefined, false);
+    if (!openTabs.length) createTab({ channelId: props.channelId, guildId: props.guildId }, true, props.messageId, true);
     for (let i = 0; i < openTabHistory.length; i++) openTabHistory.pop();
     moveToTab(currentlyOpenTab);
 }
