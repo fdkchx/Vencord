@@ -186,9 +186,7 @@ function patchFactories(factories: Record<string | number, (module: { exports: a
             const executePatch = traceFunction(`patch by ${patch.plugin}`, (match: string | RegExp, replace: string) => code.replace(match, replace));
             if (patch.predicate && !patch.predicate()) continue;
 
-            // we change all patch.find to array in plugins/index
-            // FIXME: emergency fix that will be overwritten by upstream later
-            if ((Array.isArray(patch.find) ? patch.find : (patch.find = [patch.find])).every(f => code.includes(f))) {
+            if (code.includes(patch.find)) {
                 patchedBy.add(patch.plugin);
 
                 const previousMod = mod;
