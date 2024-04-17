@@ -27,12 +27,14 @@ import { EXTENSION_BASE_URL } from "../src/utils/web-metadata";
 import { getTheme, Theme } from "../src/utils/discord";
 import { getThemeInfo } from "../src/main/themes";
 import { Settings } from "../src/Vencord";
+import { CssSnippet, CssSnippets } from "@utils/cssSnippets";
 
 // Discord deletes this so need to store in variable
 const { localStorage } = window;
 
 // listeners for ipc.on
 const cssListeners = new Set<(css: string) => void>();
+const cssSnippetListeners = new Set<(data: CssSnippets) => void>();
 const NOOP = () => { };
 const NOOP_ASYNC = async () => { };
 
@@ -87,6 +89,60 @@ window.VencordNative = {
             win.baseUrl = EXTENSION_BASE_URL;
             win.setCss = setCssDebounced;
             win.getCurrentCss = () => VencordNative.quickCss.get();
+            win.getTheme = () =>
+                getTheme() === Theme.Light
+                    ? "vs-light"
+                    : "vs-dark";
+
+            win.document.write(IS_EXTENSION ? monacoHtmlLocal : monacoHtmlCdn);
+        },
+    },
+
+    cssSnippets: {
+        getRawData: () => DataStore.get("VencordCssSnippets").then(s => s ?? ""),
+        setRawData: async (data: CssSnippets) => {
+            await DataStore.set("VencordCssSnippets", data);
+            cssSnippetListeners.forEach(l => l(data));
+        },
+        async getSnippetList() {
+            return (await VencordNative.cssSnippets.getRawData()).list;
+        },
+        async setSnippetList() {
+            return (await VencordNative.cssSnippets.getRawData()).list;
+        },
+        async getSnippetItem(id: string) {
+            const snippets = await VencordNative.cssSnippets.getSnippetList();
+            return snippets.find(s => s.id === id)!;
+        },
+        async setSnippetItem(data: CssSnippet) {
+            const snippets = [...await VencordNative.cssSnippets.getSnippetList()];
+            const i = snippets.findIndex(s => s.id === data.id);
+            if (i < 0) return;
+            snippets[i] = data;
+        },
+
+        async deleteSnippet(id: string) {
+            const snippets = [...await VencordNative.cssSnippets.getSnippetList()];
+            const i = snippets.findIndex(s => s.id === data.id);
+        },
+        async editSnippet(id: string) {
+            const features = `popup,width=${Math.min(window.innerWidth, 1000)},height=${Math.min(window.innerHeight, 1000)}`;
+            const win = open("about:blank", "VencordCssSnippet-" + id, features);
+            if (!win) {
+                alert("Failed to open CSS editor popup. Make sure to allow popups!");
+                return;
+            }
+
+            const getCurrentData = () => VencordNative.cssSnippets.getSnippetItem(id);
+
+            const setSnippetCss = debounce(async (css: string) => VencordNative.cssSnippets.setSnippetItem({
+                ...(await getCurrentData()),
+                css
+            }));
+
+            win.baseUrl = EXTENSION_BASE_URL;
+            win.setCss = setSnippetCss;
+            win.getCurrentCss = getCurrentData;
             win.getTheme = () =>
                 getTheme() === Theme.Light
                     ? "vs-light"

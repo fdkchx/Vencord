@@ -7,6 +7,7 @@
 import { PluginIpcMappings } from "@main/ipcPlugins";
 import type { UserThemeHeader } from "@main/themes";
 import { IpcEvents } from "@shared/IpcEvents";
+import { CssSnippet, CssSnippets } from "@utils/cssSnippets";
 import { IpcRes } from "@utils/types";
 import type { Settings } from "api/Settings";
 import { ipcRenderer } from "electron";
@@ -37,6 +38,16 @@ export default {
         getThemesList: () => invoke<Array<UserThemeHeader>>(IpcEvents.GET_THEMES_LIST),
         getThemeData: (fileName: string) => invoke<string | undefined>(IpcEvents.GET_THEME_DATA, fileName),
         getSystemValues: () => invoke<Record<string, string>>(IpcEvents.GET_THEME_SYSTEM_VALUES),
+    },
+
+    cssSnippets: {
+        getSnippetList: () => invoke<CssSnippet[]>(IpcEvents.GET_CSS_SNIPPET_LIST),
+        getSnippetItem: (id: string) => invoke<CssSnippet>(IpcEvents.GET_CSS_SNIPPET_ITEM, id),
+        setSnippetItem: (data: CssSnippet) => invoke<void>(IpcEvents.SET_CSS_SNIPPET_ITEM, data),
+        deleteSnippet: (id: string) => invoke<void>(IpcEvents.DELETE_CSS_SNIPPET, id),
+        editSnippet: (id: string) => invoke<void>(IpcEvents.OPEN_CSS_SNIPPET_EDITOR, id),
+        getRawData: () => invoke<CssSnippets>(IpcEvents.GET_CSS_SNIPPETS),
+        setRawData: (data: CssSnippets) => invoke<void>(IpcEvents.SET_CSS_SNIPPETS, data),
     },
 
     updater: {
