@@ -23,6 +23,7 @@ import { DeleteIcon } from "@components/Icons";
 import { Link } from "@components/Link";
 import PluginModal from "@components/PluginSettings/PluginModal";
 import type { UserThemeHeader } from "@main/themes";
+import { CssSnippet, getData, setSnippetItem, useCssSnippets } from "@utils/cssSnippets";
 import { openInviteModal } from "@utils/discord";
 import { Margins } from "@utils/margins";
 import { classes } from "@utils/misc";
@@ -30,7 +31,7 @@ import { openModal } from "@utils/modal";
 import { showItemInFolder } from "@utils/native";
 import { useAwaiter } from "@utils/react";
 import { findByPropsLazy, findLazy } from "@webpack";
-import { Button, Card, Forms, React, showToast, TabBar, TextArea, useEffect, useRef, useState } from "@webpack/common";
+import { Button, Card, Forms, React, showToast, SnowflakeUtils, TabBar, TextArea, useEffect, useRef, useState } from "@webpack/common";
 import type { ComponentType, Ref, SyntheticEvent } from "react";
 
 import { AddonCard } from "./AddonCard";
@@ -110,6 +111,7 @@ function ThemeCard({ theme, enabled, onChange, onDelete }: ThemeCardProps) {
             name={theme.name}
             description={theme.description}
             author={theme.author}
+            lastEdited={theme.author}
             enabled={enabled}
             setEnabled={onChange}
             infoButton={
@@ -140,8 +142,24 @@ function ThemeCard({ theme, enabled, onChange, onDelete }: ThemeCardProps) {
     );
 }
 
+function SnippetCard(snippet: CssSnippet) {
+    return (
+        <AddonCard
+            name={snippet.name}
+            description={snippet.description}
+            lastEdited={snippet.lastEdited}
+            enabled={snippet.enabled}
+            setEnabled={enabled => setSnippetItem({ ...snippet, enabled })}
+            infoButton={
+                null
+            }
+        />
+    );
+}
+
 enum ThemeTab {
     LOCAL,
+    CSS_SNIPPETS,
     ONLINE
 }
 
@@ -152,10 +170,12 @@ function ThemesTab() {
     const [currentTab, setCurrentTab] = useState(ThemeTab.LOCAL);
     const [themeText, setThemeText] = useState(settings.themeLinks.join("\n"));
     const [userThemes, setUserThemes] = useState<UserThemeHeader[] | null>(null);
+    const cssSnippets = useCssSnippets();
     const [themeDir, , themeDirPending] = useAwaiter(VencordNative.themes.getThemesDir);
 
     useEffect(() => {
         refreshLocalThemes();
+        getData();
     }, []);
 
     async function refreshLocalThemes() {
@@ -288,6 +308,42 @@ function ThemesTab() {
         );
     }
 
+    function renderCssSnippets() {
+        return (
+            <>
+                <Forms.FormSection title="CSS Snippets">
+                    <Card className="vc-settings-quick-actions-card">
+                        <>
+                            <Button
+                                onClick={() => setSnippetItem({
+                                    id: SnowflakeUtils.fromTimestamp(Date.now()),
+                                    name: "New CSS Snippet",
+                                    description: "",
+                                    lastEdited: new Date().toISOString(),
+                                    enabled: true,
+                                    css: ""
+                                })}
+                                size={Button.Sizes.SMALL}
+                            >
+                                Create New Snippet
+                            </Button>
+                            <Button
+                                onClick={() => VencordNative.quickCss.openEditor()}
+                                size={Button.Sizes.SMALL}
+                            >
+                                {"Edit QuickCSS (legacy)"}
+                            </Button>
+                        </>
+                    </Card>
+
+                    <div className={cl("grid")}>
+                        {cssSnippets && cssSnippets.list.map(snippet => <SnippetCard {...snippet} />)}
+                    </div>
+                </Forms.FormSection>
+            </>
+        );
+    }
+
     // When the user leaves the online theme textbox, update the settings
     function onBlur() {
         settings.themeLinks = [...new Set(
@@ -341,6 +397,12 @@ function ThemesTab() {
                 </TabBar.Item>
                 <TabBar.Item
                     className="vc-settings-tab-bar-item"
+                    id={ThemeTab.CSS_SNIPPETS}
+                >
+                    CSS Snippets
+                </TabBar.Item>
+                <TabBar.Item
+                    className="vc-settings-tab-bar-item"
                     id={ThemeTab.ONLINE}
                 >
                     Online Themes
@@ -348,6 +410,7 @@ function ThemesTab() {
             </TabBar>
 
             {currentTab === ThemeTab.LOCAL && renderLocalThemes()}
+            {currentTab === ThemeTab.CSS_SNIPPETS && renderCssSnippets()}
             {currentTab === ThemeTab.ONLINE && renderOnlineThemes()}
         </SettingsTab>
     );

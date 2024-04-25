@@ -116,6 +116,7 @@ window.VencordNative = {
 
             const setSnippetCss = debounce(async (css: string) => setSnippetItem({
                 ...(await getCurrentData()),
+                lastEdited: new Date().toISOString(),
                 css
             }));
 

@@ -4,6 +4,8 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { React } from "@webpack/common";
+
 export interface CssSnippet {
     id: string;
     name: string;
@@ -20,29 +22,32 @@ export interface CssSnippets {
 
 export let data: CssSnippets | undefined;
 
-export async function loadData() {
-    if (data) return;
+export async function getData() {
+    if (data) return data;
     data = await VencordNative.cssSnippets.getRawData();
+    listeners.forEach(i => i());
+    return data;
 }
 
 export async function getSnippetList() {
-    await loadData();
+    await getData();
     return data!.list;
 }
 
 export async function isEnabled() {
-    await loadData();
+    await getData();
     return data!.enabled;
 }
 
 export async function setEnabled(enabled: boolean) {
-    await loadData();
+    await getData();
     data!.enabled = enabled;
     await writeData();
 }
 
 export async function writeData() {
     if (!data) return;
+    listeners.forEach(i => i());
     return await VencordNative.cssSnippets.setRawData(data!);
 }
 
@@ -68,4 +73,13 @@ export async function deleteSnippet(id: string) {
     data!.list = snippets;
     await writeData();
     return true;
+}
+
+const listeners = new Set<() => void>();
+
+export function useCssSnippets() {
+    return React.useSyncExternalStore(cb => {
+        listeners.add(cb);
+        return () => listeners.delete(cb);
+    }, () => data);
 }

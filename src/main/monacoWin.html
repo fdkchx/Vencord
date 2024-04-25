@@ -43,6 +43,7 @@
                 get: () => getCssSnippet(snippetId),
                 set: async (css) => setCssSnippet({
                     ...(await cssData.get()),
+                    lastEdited: new Date().toISOString(),
                     css
                 })
             } : {
