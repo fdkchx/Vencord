@@ -27,7 +27,7 @@ import { EXTENSION_BASE_URL } from "../src/utils/web-metadata";
 import { getTheme, Theme } from "../src/utils/discord";
 import { getThemeInfo } from "../src/main/themes";
 import { Settings } from "../src/Vencord";
-import { CssSnippet, CssSnippets } from "@utils/cssSnippets";
+import CSSSnippets, { CssSnippet, CssSnippets } from "@utils/cssSnippets";
 
 // Discord deletes this so need to store in variable
 const { localStorage } = window;
@@ -104,32 +104,6 @@ window.VencordNative = {
             await DataStore.set("VencordCssSnippets", data);
             cssSnippetListeners.forEach(l => l(data));
         },
-        async getSnippetList() {
-            return (await VencordNative.cssSnippets.getRawData()).list;
-        },
-        async getSnippetItem(id: string) {
-            const snippets = await VencordNative.cssSnippets.getSnippetList();
-            return snippets.find(s => s.id === id)!;
-        },
-        async setSnippetItem(data: CssSnippet) {
-            const raw = await VencordNative.cssSnippets.getRawData();
-            const snippets = [...await VencordNative.cssSnippets.getSnippetList()];
-            const i = snippets.findIndex(s => s.id === data.id);
-            if (i < 0) return;
-            snippets[i] = data;
-            raw.list = snippets;
-            VencordNative.cssSnippets.setRawData(raw);
-        },
-
-        async deleteSnippet(id: string) {
-            const raw = await VencordNative.cssSnippets.getRawData();
-            const snippets = [...await VencordNative.cssSnippets.getSnippetList()];
-            const i = snippets.findIndex(s => s.id === id);
-            if (i < 0) return;
-            snippets.splice(i, 1);
-            raw.list = snippets;
-            VencordNative.cssSnippets.setRawData(raw);
-        },
         async editSnippet(id: string) {
             const features = `popup,width=${Math.min(window.innerWidth, 1000)},height=${Math.min(window.innerHeight, 1000)}`;
             const win = open("about:blank", "VencordCssSnippet-" + id, features);
@@ -138,7 +112,7 @@ window.VencordNative = {
                 return;
             }
 
-            const getCurrentData = () => VencordNative.cssSnippets.getSnippetItem(id);
+            const getCurrentData = () => CSSSnippets.getSnippetItem(id);
 
             const setSnippetCss = debounce(async (css: string) => VencordNative.cssSnippets.setSnippetItem({
                 ...(await getCurrentData()),
