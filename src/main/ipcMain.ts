@@ -30,7 +30,7 @@ import { join, normalize } from "path";
 import monacoHtml from "~fileContent/monacoWin.html;base64";
 
 import { getThemeInfo, stripBOM, UserThemeHeader } from "./themes";
-import { ALLOWED_PROTOCOLS, QUICKCSS_PATH, THEMES_DIR } from "./utils/constants";
+import { ALLOWED_PROTOCOLS, CSS_SNIPPETS_PATH, QUICKCSS_PATH, THEMES_DIR } from "./utils/constants";
 import { makeLinksOpenExternally } from "./utils/externalLinks";
 
 mkdirSync(THEMES_DIR, { recursive: true });
@@ -44,6 +44,10 @@ export function ensureSafePath(basePath: string, path: string) {
 
 function readCss() {
     return readFile(QUICKCSS_PATH, "utf-8").catch(() => "");
+}
+
+function readCssSnippets() {
+    return readFile(CSS_SNIPPETS_PATH, "utf-8").catch(() => "");
 }
 
 async function listThemes(): Promise<UserThemeHeader[]> {
@@ -88,6 +92,11 @@ ipcMain.handle(IpcEvents.OPEN_EXTERNAL, (_, url) => {
 ipcMain.handle(IpcEvents.GET_QUICK_CSS, () => readCss());
 ipcMain.handle(IpcEvents.SET_QUICK_CSS, (_, css) =>
     writeFileSync(QUICKCSS_PATH, css)
+);
+
+ipcMain.handle(IpcEvents.GET_CSS_SNIPPETS, () => readCssSnippets());
+ipcMain.handle(IpcEvents.SET_CSS_SNIPPETS, (_, data) =>
+    writeFileSync(CSS_SNIPPETS_PATH, data)
 );
 
 ipcMain.handle(IpcEvents.GET_THEMES_DIR, () => THEMES_DIR);
@@ -142,4 +151,29 @@ ipcMain.handle(IpcEvents.OPEN_MONACO_EDITOR, async () => {
     makeLinksOpenExternally(win);
 
     await win.loadURL(`data:text/html;base64,${monacoHtml}`);
+});
+
+ipcMain.handle(IpcEvents.OPEN_CSS_SNIPPET_EDITOR, async (_, id) => {
+    const title = "Vencord CSS Snippet Editor";
+    const existingWindow = BrowserWindow.getAllWindows().find(w => new URL(w.webContents.getURL()).searchParams.get("snippet") === id);
+    if (existingWindow && !existingWindow.isDestroyed()) {
+        existingWindow.focus();
+        return;
+    }
+
+    const win = new BrowserWindow({
+        title,
+        autoHideMenuBar: true,
+        darkTheme: true,
+        webPreferences: {
+            preload: join(__dirname, IS_DISCORD_DESKTOP ? "preload.js" : "vencordDesktopPreload.js"),
+            contextIsolation: true,
+            nodeIntegration: false,
+            sandbox: false
+        }
+    });
+
+    makeLinksOpenExternally(win);
+
+    await win.loadURL(`data:text/html;base64,${monacoHtml}?snippet=${id}`);
 });

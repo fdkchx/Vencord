@@ -27,7 +27,7 @@ import { EXTENSION_BASE_URL } from "../src/utils/web-metadata";
 import { getTheme, Theme } from "../src/utils/discord";
 import { getThemeInfo } from "../src/main/themes";
 import { Settings } from "../src/Vencord";
-import CSSSnippets, { CssSnippet, CssSnippets } from "@utils/cssSnippets";
+import { CssSnippet, CssSnippets, getSnippetItem, setSnippetItem } from "@utils/cssSnippets";
 
 // Discord deletes this so need to store in variable
 const { localStorage } = window;
@@ -112,9 +112,9 @@ window.VencordNative = {
                 return;
             }
 
-            const getCurrentData = () => CSSSnippets.getSnippetItem(id);
+            const getCurrentData = () => getSnippetItem(id);
 
-            const setSnippetCss = debounce(async (css: string) => VencordNative.cssSnippets.setSnippetItem({
+            const setSnippetCss = debounce(async (css: string) => setSnippetItem({
                 ...(await getCurrentData()),
                 css
             }));
@@ -128,6 +128,7 @@ window.VencordNative = {
                     : "vs-dark";
 
             win.document.write(IS_EXTENSION ? monacoHtmlLocal : monacoHtmlCdn);
+            win.document.title = "Vencord CSS Snippet Editor";
         },
     },
 

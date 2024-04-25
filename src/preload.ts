@@ -17,6 +17,7 @@
 */
 
 import { debounce } from "@shared/debounce";
+import { getSnippetItem, setSnippetItem } from "@utils/cssSnippets";
 import { contextBridge, webFrame } from "electron";
 import { readFileSync, watch } from "fs";
 import { join } from "path";
@@ -59,6 +60,8 @@ if (location.protocol !== "data:") {
 else {
     contextBridge.exposeInMainWorld("setCss", debounce(VencordNative.quickCss.set));
     contextBridge.exposeInMainWorld("getCurrentCss", VencordNative.quickCss.get);
+    contextBridge.exposeInMainWorld("setCssSnippet", debounce(setSnippetItem));
+    contextBridge.exposeInMainWorld("getCssSnippet", getSnippetItem);
     // shrug
     contextBridge.exposeInMainWorld("getTheme", () => "vs-dark");
 }
