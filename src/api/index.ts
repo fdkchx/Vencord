@@ -20,6 +20,7 @@ import * as $Badges from "./Badges";
 import * as $ChatButtons from "./ChatButtons";
 import * as $Commands from "./Commands";
 import * as $ContextMenu from "./ContextMenu";
+import * as $CSSSnippets from "./CSSSnippets";
 import * as $DataStore from "./DataStore";
 import * as $MemberListDecorators from "./MemberListDecorators";
 import * as $MessageAccessories from "./MessageAccessories";
@@ -110,3 +111,8 @@ export const ContextMenu = $ContextMenu;
  * An API allowing you to add buttons to the chat input
  */
 export const ChatButtons = $ChatButtons;
+
+/**
+ * An API allowing you manipulate custom CSS snippets
+ */
+export const CSSSnippets = $CSSSnippets;

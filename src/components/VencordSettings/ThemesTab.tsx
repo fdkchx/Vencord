@@ -16,22 +16,23 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+import { CssSnippet, deleteSnippet, getData, getSnippetItem, setSnippetItem, useCssSnippets } from "@api/CSSSnippets";
 import { useSettings } from "@api/Settings";
 import { classNameFactory } from "@api/Styles";
 import { Flex } from "@components/Flex";
-import { DeleteIcon } from "@components/Icons";
+import { CogWheel, DeleteIcon } from "@components/Icons";
 import { Link } from "@components/Link";
 import PluginModal from "@components/PluginSettings/PluginModal";
+import { Switch } from "@components/Switch";
 import type { UserThemeHeader } from "@main/themes";
-import { CssSnippet, getData, setSnippetItem, useCssSnippets } from "@utils/cssSnippets";
 import { openInviteModal } from "@utils/discord";
 import { Margins } from "@utils/margins";
 import { classes } from "@utils/misc";
-import { openModal } from "@utils/modal";
+import { ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalProps, ModalRoot, openModal } from "@utils/modal";
 import { showItemInFolder } from "@utils/native";
 import { useAwaiter } from "@utils/react";
 import { findByPropsLazy, findLazy } from "@webpack";
-import { Button, Card, Forms, React, showToast, SnowflakeUtils, TabBar, TextArea, useEffect, useRef, useState } from "@webpack/common";
+import { Button, Card, Forms, React, showToast, SnowflakeUtils, TabBar, Text, TextArea, TextInput, useEffect, useRef, useState } from "@webpack/common";
 import type { ComponentType, Ref, SyntheticEvent } from "react";
 
 import { AddonCard } from "./AddonCard";
@@ -147,14 +148,69 @@ function SnippetCard(snippet: CssSnippet) {
         <AddonCard
             name={snippet.name}
             description={snippet.description}
-            lastEdited={snippet.lastEdited}
+            lastEdited={new Date(snippet.lastEdited).toString()}
             enabled={snippet.enabled}
             setEnabled={enabled => setSnippetItem({ ...snippet, enabled })}
             infoButton={
-                null
+                <div style={{ cursor: "pointer" }} onClick={() => openModal(modalProps =>
+                    <SnippetModal modalProps={modalProps} snippet={snippet} />
+                )}>
+                    <CogWheel />
+                </div>
             }
         />
     );
+}
+
+function SnippetModal({ modalProps, snippet }: { modalProps: ModalProps, snippet: CssSnippet; }) {
+    const [enabled, setEnabled] = useState(snippet.enabled);
+    const [name, setName] = useState(snippet.name);
+    const [description, setDescription] = useState(snippet.description);
+    return <ModalRoot {...modalProps}>
+        <ModalHeader>
+            {/* style={{ margin: 0 }} */}
+            <Text variant="heading-lg/semibold" style={{ flexGrow: 1 }}>Edit Snippet</Text>
+            <Switch checked={enabled} onChange={v => setEnabled(v)} />
+            <ModalCloseButton onClick={modalProps.onClose} />
+        </ModalHeader>
+        <ModalContent>
+            <Forms.FormSection>
+                <Forms.FormTitle>Name</Forms.FormTitle>
+                <TextInput
+                    type="text"
+                    value={name}
+                    onChange={v => setName(v)}
+                    maxLength={120}
+                />
+            </Forms.FormSection>
+            <Forms.FormSection>
+                <Forms.FormTitle>Description</Forms.FormTitle>
+                <TextArea
+                    type="text"
+                    value={description}
+                    onChange={v => setDescription(v)}
+                />
+            </Forms.FormSection>
+            <Button style={{ width: "100%" }} onClick={() => VencordNative.cssSnippets.editSnippet(snippet.id)}>
+                Open CSS Editor
+            </Button>
+        </ModalContent>
+        <ModalFooter>
+            <Button onClick={async () => {
+                const currentSnippet = await getSnippetItem(snippet.id);
+                setSnippetItem({ ...currentSnippet, enabled, name, description });
+                modalProps.onClose();
+            }}>
+                Save Snippet
+            </Button>
+            <Button color={Button.Colors.RED} onClick={() => {
+                deleteSnippet(snippet.id);
+                modalProps.onClose();
+            }}>
+                Delete Snippet
+            </Button>
+        </ModalFooter>
+    </ModalRoot>;
 }
 
 enum ThemeTab {
@@ -315,14 +371,19 @@ function ThemesTab() {
                     <Card className="vc-settings-quick-actions-card">
                         <>
                             <Button
-                                onClick={() => setSnippetItem({
-                                    id: SnowflakeUtils.fromTimestamp(Date.now()),
-                                    name: "New CSS Snippet",
-                                    description: "",
-                                    lastEdited: new Date().toISOString(),
-                                    enabled: true,
-                                    css: ""
-                                })}
+                                onClick={async () => {
+                                    const snippet = await setSnippetItem({
+                                        id: SnowflakeUtils.fromTimestamp(Date.now()),
+                                        name: "New CSS Snippet",
+                                        description: "",
+                                        lastEdited: new Date().toISOString(),
+                                        enabled: true,
+                                        css: ""
+                                    });
+                                    openModal(modalProps =>
+                                        <SnippetModal modalProps={modalProps} snippet={snippet} />
+                                    );
+                                }}
                                 size={Button.Sizes.SMALL}
                             >
                                 Create New Snippet

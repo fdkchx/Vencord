@@ -7,7 +7,6 @@
 import { PluginIpcMappings } from "@main/ipcPlugins";
 import type { UserThemeHeader } from "@main/themes";
 import { IpcEvents } from "@shared/IpcEvents";
-import { CssSnippets } from "@utils/cssSnippets";
 import { IpcRes } from "@utils/types";
 import type { Settings } from "api/Settings";
 import { ipcRenderer } from "electron";
@@ -41,8 +40,8 @@ export default {
     },
 
     cssSnippets: {
-        getRawData: () => invoke<CssSnippets>(IpcEvents.GET_CSS_SNIPPETS),
-        setRawData: (data: CssSnippets) => invoke<void>(IpcEvents.SET_CSS_SNIPPETS, data),
+        getRawData: () => invoke<string>(IpcEvents.GET_CSS_SNIPPETS),
+        setRawData: (data: string) => invoke<void>(IpcEvents.SET_CSS_SNIPPETS, data),
         editSnippet: (id: string) => invoke<void>(IpcEvents.OPEN_CSS_SNIPPET_EDITOR, id),
     },
 

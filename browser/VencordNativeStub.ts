@@ -27,14 +27,13 @@ import { EXTENSION_BASE_URL } from "../src/utils/web-metadata";
 import { getTheme, Theme } from "../src/utils/discord";
 import { getThemeInfo } from "../src/main/themes";
 import { Settings } from "../src/Vencord";
-import { CssSnippet, CssSnippets, getSnippetItem, setSnippetItem } from "@utils/cssSnippets";
+import { CssSnippet, CssSnippets, getSnippetItem, setSnippetItem } from "@api/CSSSnippets";
 
 // Discord deletes this so need to store in variable
 const { localStorage } = window;
 
 // listeners for ipc.on
 const cssListeners = new Set<(css: string) => void>();
-const cssSnippetListeners = new Set<(data: CssSnippets) => void>();
 const NOOP = () => { };
 const NOOP_ASYNC = async () => { };
 
@@ -95,14 +94,14 @@ window.VencordNative = {
                     : "vs-dark";
 
             win.document.write(IS_EXTENSION ? monacoHtmlLocal : monacoHtmlCdn);
+            win.startEditor("");
         },
     },
 
     cssSnippets: {
-        getRawData: () => DataStore.get("VencordCssSnippets").then(s => s ?? ""),
-        setRawData: async (data: CssSnippets) => {
-            await DataStore.set("VencordCssSnippets", data);
-            cssSnippetListeners.forEach(l => l(data));
+        getRawData: async () => JSON.stringify(await DataStore.get("VencordCssSnippets").then(s => s ?? null)),
+        setRawData: async (data: string) => {
+            await DataStore.set("VencordCssSnippets", JSON.parse(data));
         },
         async editSnippet(id: string) {
             const features = `popup,width=${Math.min(window.innerWidth, 1000)},height=${Math.min(window.innerHeight, 1000)}`;
@@ -130,6 +129,7 @@ window.VencordNative = {
 
             win.document.write(IS_EXTENSION ? monacoHtmlLocal : monacoHtmlCdn);
             win.document.title = "Vencord CSS Snippet Editor";
+            win.startEditor("");
         },
     },
 

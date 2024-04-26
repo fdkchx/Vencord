@@ -24,7 +24,19 @@ export let data: CssSnippets | undefined;
 
 export async function getData() {
     if (data) return data;
-    data = await VencordNative.cssSnippets.getRawData();
+    let loadedData = null;
+    try {
+        loadedData = JSON.parse(await VencordNative.cssSnippets.getRawData());
+    } catch { }
+    if (!loadedData) {
+        data = {
+            enabled: true,
+            list: []
+        };
+        await writeData();
+        return data;
+    }
+    data = loadedData;
     listeners.forEach(i => i());
     return data;
 }
@@ -47,8 +59,9 @@ export async function setEnabled(enabled: boolean) {
 
 export async function writeData() {
     if (!data) return;
+    data = { ...data }; // required for react
     listeners.forEach(i => i());
-    return await VencordNative.cssSnippets.setRawData(data!);
+    return await VencordNative.cssSnippets.setRawData(JSON.stringify(data, null, 4));
 }
 
 export async function getSnippetItem(id: string) {
@@ -58,11 +71,12 @@ export async function getSnippetItem(id: string) {
 
 export async function setSnippetItem(snippet: CssSnippet) {
     const snippets = [...await getSnippetList()];
-    const i = snippets.findIndex(s => s.id === snippet.id);
-    if (i < 0) return;
+    let i = snippets.findIndex(s => s.id === snippet.id);
+    if (i < 0) i = snippets.length;
     snippets[i] = snippet;
     data!.list = snippets;
     await writeData();
+    return snippet;
 }
 
 export async function deleteSnippet(id: string) {
@@ -75,7 +89,7 @@ export async function deleteSnippet(id: string) {
     return true;
 }
 
-const listeners = new Set<() => void>();
+export const listeners = new Set<() => void>();
 
 export function useCssSnippets() {
     return React.useSyncExternalStore(cb => {

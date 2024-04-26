@@ -27,8 +27,6 @@ import { FSWatcher, mkdirSync, watch, writeFileSync } from "fs";
 import { open, readdir, readFile } from "fs/promises";
 import { join, normalize } from "path";
 
-import monacoHtml from "~fileContent/monacoWin.html;base64";
-
 import { getThemeInfo, stripBOM, UserThemeHeader } from "./themes";
 import { ALLOWED_PROTOCOLS, CSS_SNIPPETS_PATH, QUICKCSS_PATH, THEMES_DIR } from "./utils/constants";
 import { makeLinksOpenExternally } from "./utils/externalLinks";
@@ -150,7 +148,7 @@ ipcMain.handle(IpcEvents.OPEN_MONACO_EDITOR, async () => {
 
     makeLinksOpenExternally(win);
 
-    await win.loadURL(`data:text/html;base64,${monacoHtml}`);
+    await win.loadURL("vencord:///monacoEditor");
 });
 
 ipcMain.handle(IpcEvents.OPEN_CSS_SNIPPET_EDITOR, async (_, id) => {
@@ -175,5 +173,5 @@ ipcMain.handle(IpcEvents.OPEN_CSS_SNIPPET_EDITOR, async (_, id) => {
 
     makeLinksOpenExternally(win);
 
-    await win.loadURL(`data:text/html;base64,${monacoHtml}?snippet=${id}`);
+    await win.loadURL(`vencord:///monacoEditor?snippet=${id}`);
 });
