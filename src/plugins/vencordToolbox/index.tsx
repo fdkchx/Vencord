@@ -18,6 +18,7 @@
 
 import "./index.css";
 
+import { CssSnippet, getSnippetItem, setEnabled, setSnippetItem, useCssSnippets } from "@api/CSSSnippets";
 import { openNotificationLogModal } from "@api/Notifications/notificationLog";
 import { Settings, useSettings } from "@api/Settings";
 import ErrorBoundary from "@components/ErrorBoundary";
@@ -31,6 +32,7 @@ const HeaderBarIcon = findExportedComponentLazy("Icon", "Divider");
 
 function VencordPopout(onClose: () => void) {
     const { useQuickCss } = useSettings(["useQuickCss"]);
+    const cssSnippets = useCssSnippets();
 
     const pluginEntries = [] as ReactNode[];
 
@@ -81,6 +83,29 @@ function VencordPopout(onClose: () => void) {
                 label="Open QuickCSS"
                 action={() => VencordNative.quickCss.openEditor()}
             />
+            <Menu.MenuItem
+                id="vc-toolbox-css-snippets"
+                label="CSS Snippets"
+                subtext={cssSnippets?.enabled ? (cssSnippets?.list.filter(s => s.enabled).length + " snippets enabled") : "Disabled"}
+            >
+                <Menu.MenuCheckboxItem
+                    id="vc-toolbox-css-snippets-toggle"
+                    checked={cssSnippets?.enabled!}
+                    label={"Enable CSS Snippets"}
+                    action={() => setEnabled(!cssSnippets?.enabled)}
+                />
+                <Menu.MenuGroup>
+                    {...cssSnippets?.list.map(snippet => <Menu.MenuCheckboxItem
+                        id={"vc-toolbox-css-snippet-" + snippet.id}
+                        checked={snippet.enabled}
+                        label={snippet.name}
+                        action={async () => {
+                            const currentSnippet: CssSnippet | {} = (await getSnippetItem(snippet.id)) || {};
+                            setSnippetItem({ ...snippet, ...currentSnippet, enabled: !snippet.enabled });
+                        }}
+                    />)!}
+                </Menu.MenuGroup>
+            </Menu.MenuItem>
             {...pluginEntries}
         </Menu.Menu>
     );
