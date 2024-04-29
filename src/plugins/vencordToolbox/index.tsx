@@ -25,7 +25,7 @@ import ErrorBoundary from "@components/ErrorBoundary";
 import { Devs } from "@utils/constants";
 import definePlugin from "@utils/types";
 import { findExportedComponentLazy } from "@webpack";
-import { Menu, Popout, useState } from "@webpack/common";
+import { Menu, Popout, SettingsRouter, useState } from "@webpack/common";
 import type { ReactNode } from "react";
 
 const HeaderBarIcon = findExportedComponentLazy("Icon", "Divider");
@@ -86,6 +86,9 @@ function VencordPopout(onClose: () => void) {
             <Menu.MenuItem
                 id="vc-toolbox-css-snippets"
                 label="CSS Snippets"
+                action={() => {
+                    SettingsRouter.open("VencordThemes");
+                }}
                 subtext={cssSnippets?.enabled ? (cssSnippets?.list.filter(s => s.enabled).length + " snippets enabled") : "Disabled"}
             >
                 <Menu.MenuCheckboxItem
