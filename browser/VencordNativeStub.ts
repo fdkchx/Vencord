@@ -111,7 +111,7 @@ window.VencordNative = {
                 return;
             }
 
-            const getCurrentData = () => getSnippetItem(id);
+            const getCurrentData = async () => (await getSnippetItem(id))!;
 
             const setSnippetCss = debounce(async (css: string) => setSnippetItem({
                 ...(await getCurrentData()),

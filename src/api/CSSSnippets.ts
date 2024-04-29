@@ -38,6 +38,7 @@ export async function getData() {
     }
     data = loadedData;
     listeners.forEach(i => i());
+    injectCssSnippets(data);
     return data;
 }
 
@@ -61,12 +62,13 @@ export async function writeData() {
     if (!data) return;
     data = { ...data }; // required for react
     listeners.forEach(i => i());
+    injectCssSnippets(data);
     return await VencordNative.cssSnippets.setRawData(JSON.stringify(data, null, 4));
 }
 
 export async function getSnippetItem(id: string) {
     const snippets = await getSnippetList();
-    return snippets.find(s => s.id === id)!;
+    return snippets.find(s => s.id === id);
 }
 
 export async function setSnippetItem(snippet: CssSnippet) {
@@ -97,3 +99,34 @@ export function useCssSnippets() {
         return () => listeners.delete(cb);
     }, () => data);
 }
+
+
+export async function injectCssSnippets({ enabled, list: snippets }: CssSnippets) {
+    const styles = Array.from(document.querySelectorAll("style.vc-css-snippet") as NodeListOf<HTMLStyleElement>);
+    for (let i = 0; i < styles.length; i++) {
+        const style = styles[i];
+        const snippet = snippets.find(s => s.id === style.dataset.snippetId!);
+        if (enabled && snippet?.enabled) {
+            style.innerText = snippet.css;
+            style.dataset.snippetName = snippet.name;
+        } else {
+            style.parentElement?.removeChild(style);
+        }
+    }
+    const stylesUpdated = Array.from(document.querySelectorAll("style.vc-css-snippet") as NodeListOf<HTMLStyleElement>);
+    for (let i = 0; i < snippets.length; i++) {
+        const snippet = snippets[i];
+        const hasElement = !!stylesUpdated.some(e => e.dataset.snippetId === snippet.id);
+        if (hasElement || !enabled || !snippet?.enabled) continue;
+        const style = document.createElement("style");
+        style.classList.add("vc-css-snippet");
+        style.dataset.snippetId = snippet.id;
+        style.dataset.snippetName = snippet.name;
+        style.innerText = snippet.css;
+        document.documentElement.appendChild(style);
+    }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    getData();
+}, { once: true });

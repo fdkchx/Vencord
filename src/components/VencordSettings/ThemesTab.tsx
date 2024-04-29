@@ -28,7 +28,7 @@ import type { UserThemeHeader } from "@main/themes";
 import { openInviteModal } from "@utils/discord";
 import { Margins } from "@utils/margins";
 import { classes } from "@utils/misc";
-import { ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalProps, ModalRoot, openModal } from "@utils/modal";
+import { ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalProps, ModalRoot, ModalSize, openModal } from "@utils/modal";
 import { showItemInFolder } from "@utils/native";
 import { useAwaiter } from "@utils/react";
 import { findByPropsLazy, findLazy } from "@webpack";
@@ -166,7 +166,8 @@ function SnippetModal({ modalProps, snippet }: { modalProps: ModalProps, snippet
     const [enabled, setEnabled] = useState(snippet.enabled);
     const [name, setName] = useState(snippet.name);
     const [description, setDescription] = useState(snippet.description);
-    return <ModalRoot {...modalProps}>
+    const [css, setCss] = useState(snippet.css);
+    return <ModalRoot {...modalProps} size={ModalSize.LARGE}>
         <ModalHeader>
             {/* style={{ margin: 0 }} */}
             <Text variant="heading-lg/semibold" style={{ flexGrow: 1 }}>Edit Snippet</Text>
@@ -189,16 +190,27 @@ function SnippetModal({ modalProps, snippet }: { modalProps: ModalProps, snippet
                     type="text"
                     value={description}
                     onChange={v => setDescription(v)}
+                    rows={2}
                 />
             </Forms.FormSection>
-            <Button style={{ width: "100%" }} onClick={() => VencordNative.cssSnippets.editSnippet(snippet.id)}>
+            <Forms.FormSection>
+                <Forms.FormTitle>CSS</Forms.FormTitle>
+                <TextArea
+                    className={cl("snippet-editor")}
+                    type="text"
+                    value={css}
+                    onChange={v => setCss(v)}
+                    rows={8}
+                />
+            </Forms.FormSection>
+            {/* <Button style={{ width: "100%" }} onClick={() => VencordNative.cssSnippets.editSnippet(snippet.id)}>
                 Open CSS Editor
-            </Button>
+            </Button> */}
         </ModalContent>
         <ModalFooter>
             <Button onClick={async () => {
-                const currentSnippet = await getSnippetItem(snippet.id);
-                setSnippetItem({ ...currentSnippet, enabled, name, description });
+                const currentSnippet = (await getSnippetItem(snippet.id))!;
+                setSnippetItem({ ...currentSnippet, enabled, name, description, css });
                 modalProps.onClose();
             }}>
                 Save Snippet
