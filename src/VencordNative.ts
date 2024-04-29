@@ -39,6 +39,12 @@ export default {
         getSystemValues: () => invoke<Record<string, string>>(IpcEvents.GET_THEME_SYSTEM_VALUES),
     },
 
+    cssSnippets: {
+        getRawData: () => invoke<string>(IpcEvents.GET_CSS_SNIPPETS),
+        setRawData: (data: string) => invoke<void>(IpcEvents.SET_CSS_SNIPPETS, data),
+        editSnippet: (id: string) => invoke<void>(IpcEvents.OPEN_CSS_SNIPPET_EDITOR, id),
+    },
+
     updater: {
         getUpdates: () => invoke<IpcRes<Record<"hash" | "author" | "message", string>[]>>(IpcEvents.GET_UPDATES),
         update: () => invoke<IpcRes<boolean>>(IpcEvents.UPDATE),

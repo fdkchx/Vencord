@@ -27,3 +27,7 @@
 .vc-settings-theme-author::before {
     content: "by ";
 }
+
+.vc-settings-theme-snippet-editor {
+    font-family: var(--font-code);
+}

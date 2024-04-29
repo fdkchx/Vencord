@@ -16,6 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+import { getSnippetItem, setSnippetItem } from "@api/CSSSnippets";
 import { debounce } from "@shared/debounce";
 import { contextBridge, webFrame } from "electron";
 import { readFileSync, watch } from "fs";
@@ -26,7 +27,7 @@ import VencordNative from "./VencordNative";
 contextBridge.exposeInMainWorld("VencordNative", VencordNative);
 
 // Discord
-if (location.protocol !== "data:") {
+if (!["data:", "vencord:"].includes(location.protocol)) {
     // #region cssInsert
     const rendererCss = join(__dirname, IS_VESKTOP ? "vencordDesktopRenderer.css" : "renderer.css");
 
@@ -59,6 +60,8 @@ if (location.protocol !== "data:") {
 else {
     contextBridge.exposeInMainWorld("setCss", debounce(VencordNative.quickCss.set));
     contextBridge.exposeInMainWorld("getCurrentCss", VencordNative.quickCss.get);
+    contextBridge.exposeInMainWorld("setCssSnippet", debounce(s => setSnippetItem(s)));
+    contextBridge.exposeInMainWorld("getCssSnippet", i => getSnippetItem(i));
     // shrug
     contextBridge.exposeInMainWorld("getTheme", () => "vs-dark");
 }
