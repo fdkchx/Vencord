@@ -421,7 +421,7 @@ function ThemesTab() {
                                         lastEdited: new Date().toISOString(),
                                         createdAt: new Date().toISOString(),
                                         origin: "quickcss",
-                                        enabled: true,
+                                        enabled: Vencord.Settings.useQuickCss,
                                         css: await VencordNative.quickCss.get()
                                     };
                                     openModal(modalProps =>
