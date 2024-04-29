@@ -168,7 +168,7 @@ function SnippetModal({ modalProps, snippet, onApply, isNew }: { modalProps: Mod
     const [description, setDescription] = useState(snippet.description);
     const [css, setCss] = useState(snippet.css);
     const applySnippet = async () => {
-        const currentSnippet = (await getSnippetItem(snippet.id)) || {};
+        const currentSnippet: CssSnippet | {} = (await getSnippetItem(snippet.id)) || {};
         setSnippetItem({ ...snippet, ...currentSnippet, enabled, name, description, css });
         onApply && onApply();
     };
