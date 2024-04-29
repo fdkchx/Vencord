@@ -162,15 +162,20 @@ function SnippetCard(snippet: CssSnippet) {
     );
 }
 
-function SnippetModal({ modalProps, snippet }: { modalProps: ModalProps, snippet: CssSnippet; }) {
+function SnippetModal({ modalProps, snippet, onApply, isNew }: { modalProps: ModalProps, snippet: CssSnippet; onApply?: () => void; isNew?: boolean; }) {
     const [enabled, setEnabled] = useState(snippet.enabled);
     const [name, setName] = useState(snippet.name);
     const [description, setDescription] = useState(snippet.description);
     const [css, setCss] = useState(snippet.css);
+    const applySnippet = async () => {
+        const currentSnippet = (await getSnippetItem(snippet.id)) || {};
+        setSnippetItem({ ...snippet, ...currentSnippet, enabled, name, description, css });
+        onApply && onApply();
+    };
     return <ModalRoot {...modalProps} size={ModalSize.LARGE}>
         <ModalHeader>
             {/* style={{ margin: 0 }} */}
-            <Text variant="heading-lg/semibold" style={{ flexGrow: 1 }}>Edit Snippet</Text>
+            <Text variant="heading-lg/semibold" style={{ flexGrow: 1 }}>{isNew ? "Create New Snippet" : "Edit Snippet"}</Text>
             <Switch checked={enabled} onChange={v => setEnabled(v)} />
             <ModalCloseButton onClick={modalProps.onClose} />
         </ModalHeader>
@@ -183,8 +188,6 @@ function SnippetModal({ modalProps, snippet }: { modalProps: ModalProps, snippet
                     onChange={v => setName(v)}
                     maxLength={120}
                 />
-            </Forms.FormSection>
-            <Forms.FormSection>
                 <Forms.FormTitle>Description</Forms.FormTitle>
                 <TextArea
                     type="text"
@@ -192,15 +195,14 @@ function SnippetModal({ modalProps, snippet }: { modalProps: ModalProps, snippet
                     onChange={v => setDescription(v)}
                     rows={2}
                 />
-            </Forms.FormSection>
-            <Forms.FormSection>
                 <Forms.FormTitle>CSS</Forms.FormTitle>
                 <TextArea
                     className={cl("snippet-editor")}
                     type="text"
                     value={css}
                     onChange={v => setCss(v)}
-                    rows={8}
+                    rows={15}
+                    spellCheck={false}
                 />
             </Forms.FormSection>
             {/* <Button style={{ width: "100%" }} onClick={() => VencordNative.cssSnippets.editSnippet(snippet.id)}>
@@ -208,26 +210,34 @@ function SnippetModal({ modalProps, snippet }: { modalProps: ModalProps, snippet
             </Button> */}
         </ModalContent>
         <ModalFooter>
-            <Button onClick={async () => {
-                const currentSnippet = (await getSnippetItem(snippet.id))!;
-                setSnippetItem({ ...currentSnippet, enabled, name, description, css });
-                modalProps.onClose();
-            }}>
-                Save Snippet
-            </Button>
-            <Button color={Button.Colors.RED} onClick={() => {
-                deleteSnippet(snippet.id);
-                modalProps.onClose();
-            }}>
-                Delete Snippet
-            </Button>
+            <Flex>
+                <Button color={Button.Colors.PRIMARY} onClick={async () => {
+                    await applySnippet();
+                }}>
+                    Apply
+                </Button>
+                <Button onClick={async () => {
+                    await applySnippet();
+                    modalProps.onClose();
+                }}>
+                    Save Snippet
+                </Button>
+            </Flex>
+            <Flex>
+                <Button color={Button.Colors.RED} onClick={() => {
+                    deleteSnippet(snippet.id);
+                    modalProps.onClose();
+                }}>
+                    Delete Snippet
+                </Button>
+            </Flex>
         </ModalFooter>
     </ModalRoot>;
 }
 
 enum ThemeTab {
-    LOCAL,
     CSS_SNIPPETS,
+    LOCAL,
     ONLINE
 }
 
@@ -235,7 +245,7 @@ function ThemesTab() {
     const settings = useSettings(["themeLinks", "enabledThemes"]);
 
     const fileInputRef = useRef<HTMLInputElement>(null);
-    const [currentTab, setCurrentTab] = useState(ThemeTab.LOCAL);
+    const [currentTab, setCurrentTab] = useState(ThemeTab.CSS_SNIPPETS);
     const [themeText, setThemeText] = useState(settings.themeLinks.join("\n"));
     const [userThemes, setUserThemes] = useState<UserThemeHeader[] | null>(null);
     const cssSnippets = useCssSnippets();
@@ -384,16 +394,18 @@ function ThemesTab() {
                         <>
                             <Button
                                 onClick={async () => {
-                                    const snippet = await setSnippetItem({
+                                    const snippet: CssSnippet = {
                                         id: SnowflakeUtils.fromTimestamp(Date.now()),
                                         name: "New CSS Snippet",
                                         description: "",
                                         lastEdited: new Date().toISOString(),
+                                        createdAt: new Date().toISOString(),
+                                        origin: null,
                                         enabled: true,
                                         css: ""
-                                    });
+                                    };
                                     openModal(modalProps =>
-                                        <SnippetModal modalProps={modalProps} snippet={snippet} />
+                                        <SnippetModal modalProps={modalProps} snippet={snippet} isNew={true} />
                                     );
                                 }}
                                 size={Button.Sizes.SMALL}
@@ -401,10 +413,32 @@ function ThemesTab() {
                                 Create New Snippet
                             </Button>
                             <Button
+                                onClick={async () => {
+                                    const snippet: CssSnippet = {
+                                        id: SnowflakeUtils.fromTimestamp(Date.now()),
+                                        name: `Quick CSS ${new Date().toDateString()}`,
+                                        description: "Imported from QuickCSS",
+                                        lastEdited: new Date().toISOString(),
+                                        createdAt: new Date().toISOString(),
+                                        origin: "quickcss",
+                                        enabled: true,
+                                        css: await VencordNative.quickCss.get()
+                                    };
+                                    openModal(modalProps =>
+                                        <SnippetModal modalProps={modalProps} snippet={snippet} isNew={true} onApply={() => {
+                                            VencordNative.quickCss.set("");
+                                        }} />
+                                    );
+                                }}
+                                size={Button.Sizes.SMALL}
+                            >
+                                Import from QuickCSS
+                            </Button>
+                            <Button
                                 onClick={() => VencordNative.quickCss.openEditor()}
                                 size={Button.Sizes.SMALL}
                             >
-                                {"Edit QuickCSS (legacy)"}
+                                {"Edit QuickCSS"}
                             </Button>
                         </>
                     </Card>

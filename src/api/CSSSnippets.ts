@@ -11,14 +11,23 @@ export interface CssSnippet {
     name: string;
     description: string;
     lastEdited: string;
+    createdAt: string;
+    origin: CssSnippetOrigin | null;
     enabled: boolean;
     css: string;
+}
+
+export type CssSnippetOrigin = "quickcss" | GenericCssSnippetOrigin;
+
+export interface GenericCssSnippetOrigin {
+    type: string;
 }
 
 export interface CssSnippets {
     enabled: boolean;
     list: CssSnippet[];
 }
+
 
 export let data: CssSnippets | undefined;
 
