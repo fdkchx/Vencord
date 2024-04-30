@@ -56,6 +56,10 @@ export async function getSnippetList() {
     return data!.list;
 }
 
+export function sortSnippets(snippets: CssSnippet[]) {
+    return [...snippets].sort((a, b) => new Date(a.lastEdited).getTime() - new Date(b.lastEdited).getTime()).reverse();
+}
+
 export async function isEnabled() {
     await getData();
     return data!.enabled;
@@ -85,7 +89,7 @@ export async function setSnippetItem(snippet: CssSnippet) {
     let i = snippets.findIndex(s => s.id === snippet.id);
     if (i < 0) i = snippets.length;
     snippets[i] = snippet;
-    data!.list = snippets;
+    data!.list = snippets.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()).reverse();
     await writeData();
     return snippet;
 }

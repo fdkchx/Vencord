@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { CssSnippet, deleteSnippet, getData, getSnippetItem, setSnippetItem, useCssSnippets } from "@api/CSSSnippets";
+import { CssSnippet, deleteSnippet, getData, getSnippetItem, setSnippetItem, sortSnippets, useCssSnippets } from "@api/CSSSnippets";
 import { useSettings } from "@api/Settings";
 import { classNameFactory } from "@api/Styles";
 import { Flex } from "@components/Flex";
@@ -444,7 +444,7 @@ function ThemesTab() {
                     </Card>
 
                     <div className={cl("grid")}>
-                        {cssSnippets && cssSnippets.list.map(snippet => <SnippetCard {...snippet} />)}
+                        {cssSnippets && sortSnippets(cssSnippets.list).map(snippet => <SnippetCard {...snippet} />)}
                     </div>
                 </Forms.FormSection>
             </>
