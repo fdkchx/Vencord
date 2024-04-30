@@ -169,7 +169,7 @@ function SnippetModal({ modalProps, snippet, onApply, isNew }: { modalProps: Mod
     const [css, setCss] = useState(snippet.css);
     const applySnippet = async () => {
         const currentSnippet: CssSnippet | {} = (await getSnippetItem(snippet.id)) || {};
-        setSnippetItem({ ...snippet, ...currentSnippet, enabled, name, description, css });
+        setSnippetItem({ ...snippet, ...currentSnippet, enabled, name, description, lastEdited: new Date().toISOString(), css });
         onApply && onApply();
     };
     return <ModalRoot {...modalProps} size={ModalSize.LARGE}>
