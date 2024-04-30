@@ -18,7 +18,7 @@
 
 import "./index.css";
 
-import { CssSnippet, getSnippetItem, setEnabled, setSnippetItem, useCssSnippets } from "@api/CSSSnippets";
+import { CssSnippet, getSnippetItem, setEnabled, setSnippetItem, sortSnippets, useCssSnippets } from "@api/CSSSnippets";
 import { openNotificationLogModal } from "@api/Notifications/notificationLog";
 import { Settings, useSettings } from "@api/Settings";
 import ErrorBoundary from "@components/ErrorBoundary";
@@ -83,22 +83,22 @@ function VencordPopout(onClose: () => void) {
                 label="Open QuickCSS"
                 action={() => VencordNative.quickCss.openEditor()}
             />
-            <Menu.MenuItem
+            {cssSnippets && <Menu.MenuItem
                 id="vc-toolbox-css-snippets"
                 label="CSS Snippets"
                 action={() => {
                     SettingsRouter.open("VencordThemes");
                 }}
-                subtext={cssSnippets?.enabled ? (`${cssSnippets?.list.filter(s => s.enabled).length}/${cssSnippets?.list.length} snippets enabled`) : "Disabled"}
+                subtext={cssSnippets.enabled ? (`${cssSnippets.list.filter(s => s.enabled).length}/${cssSnippets.list.length} snippets enabled`) : "Disabled"}
             >
                 <Menu.MenuCheckboxItem
                     id="vc-toolbox-css-snippets-toggle"
-                    checked={cssSnippets?.enabled!}
+                    checked={cssSnippets.enabled!}
                     label={"Enable CSS Snippets"}
-                    action={() => setEnabled(!cssSnippets?.enabled)}
+                    action={() => setEnabled(!cssSnippets.enabled)}
                 />
                 <Menu.MenuGroup>
-                    {...cssSnippets?.list.map(snippet => <Menu.MenuCheckboxItem
+                    {...sortSnippets(cssSnippets.list).map(snippet => <Menu.MenuCheckboxItem
                         id={"vc-toolbox-css-snippet-" + snippet.id}
                         checked={snippet.enabled}
                         label={snippet.name}
@@ -109,7 +109,7 @@ function VencordPopout(onClose: () => void) {
                         }}
                     />)!}
                 </Menu.MenuGroup>
-            </Menu.MenuItem>
+            </Menu.MenuItem>}
             {...pluginEntries}
         </Menu.Menu>
     );
