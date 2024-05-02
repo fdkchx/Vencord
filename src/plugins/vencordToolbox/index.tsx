@@ -90,7 +90,7 @@ function VencordPopout(onClose: () => void) {
                 action={() => {
                     SettingsRouter.open("VencordThemes");
                 }}
-                subtext={cssSnippets.enabled ? (cssSnippets.list.length ? `${cssSnippets.list.filter(s => s.enabled).length}/${cssSnippets.list.length} ${pluralise(cssSnippets.list.length, "snippet")} enabled` : "No snippets available") : "Disabled"}
+                subtext={cssSnippets.enabled ? (cssSnippets.list.length ? `${cssSnippets.list.filter(s => s.enabled).length}/${pluralise(cssSnippets.list.length, "snippet")} enabled` : "No snippets available") : "Disabled"}
             >
                 <Menu.MenuCheckboxItem
                     id="vc-toolbox-css-snippets-toggle"
