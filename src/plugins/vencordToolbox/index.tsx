@@ -23,6 +23,7 @@ import { openNotificationLogModal } from "@api/Notifications/notificationLog";
 import { Settings, useSettings } from "@api/Settings";
 import ErrorBoundary from "@components/ErrorBoundary";
 import { Devs } from "@utils/constants";
+import { pluralise } from "@utils/misc";
 import definePlugin from "@utils/types";
 import { findExportedComponentLazy } from "@webpack";
 import { Menu, Popout, SettingsRouter, useState } from "@webpack/common";
@@ -89,7 +90,7 @@ function VencordPopout(onClose: () => void) {
                 action={() => {
                     SettingsRouter.open("VencordThemes");
                 }}
-                subtext={cssSnippets.enabled ? (`${cssSnippets.list.filter(s => s.enabled).length}/${cssSnippets.list.length} snippets enabled`) : "Disabled"}
+                subtext={cssSnippets.enabled ? (cssSnippets.list.length ? `${cssSnippets.list.filter(s => s.enabled).length}/${cssSnippets.list.length} ${pluralise(cssSnippets.list.length, "snippet")} enabled` : "No snippets available") : "Disabled"}
             >
                 <Menu.MenuCheckboxItem
                     id="vc-toolbox-css-snippets-toggle"
