@@ -58,18 +58,6 @@ const userContextPatch: NavContextMenuPatchCallback = (children, { user }: { use
     );
 };
 
-const userContextPatch: NavContextMenuPatchCallback = (children, props: { user?: User, onClose(): void; }) => {
-    if (!props.user) return;
-    children.push(
-        <Menu.MenuItem
-            label="View Reviews"
-            id="vc-rdb-user-reviews"
-            icon={OpenExternalIcon}
-            action={() => openReviewsModal(props.user!.id, props.user!.username)}
-        />
-    );
-};
-
 export default definePlugin({
     name: "ReviewDB",
     description: "Review other users (Adds a new settings to profiles)",
