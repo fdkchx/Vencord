@@ -16,7 +16,7 @@ export default definePlugin({
         {
             find: "DISCOVERY_SIDEBAR_CATEGORIES.",
             replacement: {
-                match: /\i\.DISCOVERY_SIDEBAR_CATEGORIES(\.slice\(1\)|\.map\(\i=>\i\.find\(\i=>\i\.categoryId===\i\)\))/,
+                match: /\i\.DISCOVERY_SIDEBAR_CATEGORIES(\.slice\(1\)|\.map\(\i=>\i\.find\(\i=>\i\.categoryId===\i\)\))/g,
                 replace: "this.getAllCategories()",
             },
         },
