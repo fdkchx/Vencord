@@ -74,8 +74,8 @@ export default definePlugin({
                 if (channel.guild_id && !PermissionStore.can(PermissionsBits.SEND_MESSAGES, channel)) return;
                 if (msg.deleted === true) return;
 
-                if (isMe) {
-                    if (!settings.store.enableDoubleClickToEdit || EditStore.isEditing(channel.id, msg.id)) return;
+                if (isMe && settings.store.enableDoubleClickToEdit) {
+                    if (EditStore.isEditing(channel.id, msg.id)) return;
 
                     MessageActions.startEditMessage(channel.id, msg.id, msg.content);
                     event.preventDefault();
