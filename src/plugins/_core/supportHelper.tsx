@@ -17,17 +17,18 @@
 */
 
 import { DataStore } from "@api/index";
+import { definePluginSettings } from "@api/Settings";
 import { Devs, SUPPORT_CHANNEL_ID } from "@utils/constants";
 import { isPluginDev } from "@utils/misc";
 import { makeCodeblock } from "@utils/text";
-import definePlugin from "@utils/types";
+import definePlugin, { OptionType } from "@utils/types";
 import { isOutdated } from "@utils/updater";
 import { Alerts, Forms, UserStore } from "@webpack/common";
 
 import gitHash from "~git-hash";
 import plugins from "~plugins";
 
-import settings from "./settings";
+import settingsPlugin from "./settings";
 
 const REMEMBER_DISMISS_KEY = "Vencord-SupportHelper-Dismiss";
 
@@ -37,17 +38,26 @@ const AllowedChannelIds = [
     "1033680203433660458", // Vencord > #v
 ];
 
+const settings = definePluginSettings({
+    debugCommandEverywhere: {
+        type: OptionType.BOOLEAN,
+        description: "Enable the /vencord-debug command in all channels",
+        default: false
+    }
+});
+
 export default definePlugin({
     name: "SupportHelper",
     required: true,
     description: "Helps us provide support to you",
     authors: [Devs.Ven],
     dependencies: ["CommandsAPI"],
+    settings,
 
     commands: [{
         name: "vencord-debug",
         description: "Send Vencord Debug info",
-        predicate: ctx => AllowedChannelIds.includes(ctx.channel.id),
+        predicate: ctx => AllowedChannelIds.includes(ctx.channel.id) || settings.store.debugCommandEverywhere,
         async execute() {
             const { RELEASE_CHANNEL } = window.GLOBAL_ENV;
 
@@ -67,7 +77,7 @@ export default definePlugin({
             const enabledApiPlugins = Object.keys(plugins).filter(p => Vencord.Plugins.isPluginEnabled(p) && isApiPlugin(p));
 
             const info = {
-                Vencord: `v${VERSION} • ${gitHash}${settings.additionalInfo} - ${Intl.DateTimeFormat("en-GB", { dateStyle: "medium" }).format(BUILD_TIMESTAMP)}`,
+                Vencord: `v${VERSION} • ${gitHash}${settingsPlugin.additionalInfo} - ${Intl.DateTimeFormat("en-GB", { dateStyle: "medium" }).format(BUILD_TIMESTAMP)}`,
                 "Discord Branch": RELEASE_CHANNEL,
                 Client: client,
                 Platform: window.navigator.platform,
@@ -88,7 +98,7 @@ ${makeCodeblock(enabledPlugins.join(", ") + "\n\n" + enabledApiPlugins.join(", "
 `;
 
             return {
-                content: debugInfo.trim().replaceAll("```\n", "```")
+                content: debugInfo.trim().replaceAll("```\n", "```"),
             };
         }
     }],
