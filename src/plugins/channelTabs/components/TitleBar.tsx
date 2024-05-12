@@ -25,7 +25,6 @@ import { channelTabsSettings as settings, ChannelTabsUtils } from "../util";
 import BookmarkContainer from "./BookmarkContainer";
 import ChannelsTabsContainer from "./ChannelTabsContainer";
 import { BasicContextMenu } from "./ContextMenus";
-import OverrideCSS from "./OverrideCSS";
 import QuickSwitcherButton from "./QuickSwitcherButton";
 import TotalMentionsBadge from "./TotalMentionsBadge";
 import WindowButtons from "./WindowButtons";
@@ -104,7 +103,15 @@ export default function TitleBar() {
         ref={ref}
         onContextMenu={e => ContextMenuApi.openContextMenu(e, () => <BasicContextMenu />)}
     >
-        <OverrideCSS className={cl("titlebar-height-style")} height={height} />
+        <style id={cl("titlebar-height-style")}>
+            {`
+            :root {
+                /* This is generated at runtime. It is recommended to avoid overriding any of this */
+                --vc-channeltabs-titlebar-height-auto: ${height}px;
+                --vc-channeltabs-titlebar-height: var(--vc-channeltabs-titlebar-height-auto);
+            }
+            `}
+        </style>
         <div className={classes(cl("titlebar"), cl(`tab-style-${tabStyle}`), ...[cl("maximized")].filter(() => isMaximized && compactWhenMaximized))}>
             {showHomeButton && <>
                 <button

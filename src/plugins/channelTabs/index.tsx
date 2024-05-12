@@ -25,6 +25,7 @@ import definePlugin from "@utils/types";
 import { ChannelStore, Menu, PrivateChannelsStore, React, SelectedChannelStore } from "@webpack/common";
 import { Channel, Guild, Message, User } from "discord-types/general";
 
+import OverrideCSS from "./components/OverrideCSS";
 import TitleBar from "./components/TitleBar";
 import onKey from "./keybinds";
 import { channelTabsSettings as settings, ChannelTabsUtils } from "./util";
@@ -177,6 +178,7 @@ export default definePlugin({
     renderTitleBar() {
         return <ErrorBoundary>
             <TitleBar />
+            <OverrideCSS className={"vc-channeltabs-titlebar-height-override-styles"} />
         </ErrorBoundary>;
     },
 

@@ -40,7 +40,8 @@ export default function ChannelsTabsContainer() {
     const props = useStateFromStores([SelectedChannelStore, SelectedGuildStore], () => {
         return {
             channelId: SelectedChannelStore.getChannelId(),
-            guildId: SelectedGuildStore.getGuildId() || "@me"
+            guildId: SelectedGuildStore.getGuildId() || "@me",
+            messageId: location.pathname.split("/")[4] // fix later??????????
         };
     });
     const { openTabs } = ChannelTabsUtils;
@@ -74,7 +75,7 @@ export default function ChannelsTabsContainer() {
 
             openStartupTabs({ ...props, userId: id }, setUserId);
         };
-        onLogin();
+        // onLogin();
 
         FluxDispatcher.subscribe("CONNECTION_OPEN_SUPPLEMENTAL", onLogin);
         return () => {

@@ -55,8 +55,7 @@ const selectors: LazyCSS[] = [
     }
 ];
 
-function InjectCSSWhenReady(props: { selector: LazyCSS; }) {
-    const lc = props.selector;
+function InjectCSSWhenReady({ selector: lc }: { selector: LazyCSS; }) {
     const [className, setClassName] = useState("");
     waitFor([...lc.classes], module => {
         if (!className) setClassName(`body #app-mount .${(module[lc.classes[0]] as unknown as string).replaceAll(" ", ".")}${lc.suffix ? " " + lc.suffix : ""}`);
@@ -66,17 +65,8 @@ function InjectCSSWhenReady(props: { selector: LazyCSS; }) {
     </style>;
 }
 
-export default function OverrideCSS(props: { className: string; height: number; }) {
+export default function OverrideCSS(props: { className: string; }) {
     return <div className={props.className} style={{ display: "none" }}>
-        <style>
-            {`
-            :root {
-                /* This is generated at runtime. It is recommended to avoid overriding any of this */
-                --vc-channeltabs-titlebar-height-auto: ${props.height}px;
-                --vc-channeltabs-titlebar-height: var(--vc-channeltabs-titlebar-height-auto);
-            }
-            `}
-        </style>
         {selectors.map(i => <InjectCSSWhenReady selector={i} />)}
     </div>;
 }
