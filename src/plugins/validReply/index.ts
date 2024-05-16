@@ -6,22 +6,34 @@
 
 import { Devs } from "@utils/constants";
 import definePlugin from "@utils/types";
+import { findByPropsLazy } from "@webpack";
 import { FluxDispatcher, RestAPI } from "@webpack/common";
 import { Message, User } from "discord-types/general";
 import { Channel } from "discord-types/general/index.js";
+
+const enum ReferencedMessageState {
+    Loaded,
+    NotLoaded,
+    Deleted
+}
+
 interface Reply {
     baseAuthor: User,
-    baseMessage: Message
-    channel: Channel
-    referencedMessage: { state: number } // 0 = normal, 1 = couldn't load, 2 = deleted
-    compact: boolean
-    isReplyAuthorBlocked: boolean
+    baseMessage: Message;
+    channel: Channel;
+    referencedMessage: { state: ReferencedMessageState; };
+    compact: boolean;
+    isReplyAuthorBlocked: boolean;
 }
-const fetching = new Map<string,string>();
-let ReplyStore:any;
+
+const fetching = new Map<string, string>();
+let ReplyStore: any;
+
+const { createMessageRecord } = findByPropsLazy("createMessageRecord");
+
 export default definePlugin({
     name: "ValidReply",
-    description: "Fixes \"Message could not be loaded\" upon hovering over the reply",
+    description: 'Fixes "Message could not be loaded" upon hovering over the reply',
     authors: [Devs.newwares],
     patches: [
         {
@@ -39,31 +51,56 @@ export default definePlugin({
             }
         }
     ],
+
     setReplyStore(store: any) {
-        ReplyStore=store;
+        ReplyStore = store;
     },
-    fetchReply(reply:Reply) {
-        const { channel_id: channel, message_id: message } = reply.baseMessage.messageReference!;
-        if (fetching.has(message)) {
+
+    async fetchReply(reply: Reply) {
+        const { channel_id: channelId, message_id: messageId } = reply.baseMessage.messageReference!;
+
+        if (fetching.has(messageId)) {
             return;
         }
-        fetching.set(message, channel);
-        RestAPI.get({ url: `/channels/${channel}/messages`,
+        fetching.set(messageId, channelId);
+
+        RestAPI.get({
+            url: `/channels/${channelId}/messages`,
             query: {
                 limit: 1,
-                around: message
+                around: messageId
             },
             retries: 2
-        }).then(res => {
-            const reply:Message|undefined = res?.body?.[0];
-            if (!reply) return;
-            ReplyStore.updateExistingMessageIfCached(reply);
-            FluxDispatcher.dispatch({
-                type: "MESSAGE_UPDATE",
-                message: reply
+        })
+            .then(res => {
+                const reply: Message | undefined = res?.body?.[0];
+                if (!reply) return;
+
+                if (reply.id !== messageId) {
+                    ReplyStore.set(channelId, messageId, {
+                        state: ReferencedMessageState.Deleted
+                    });
+
+                    FluxDispatcher.dispatch({
+                        type: "MESSAGE_DELETE",
+                        channelId: channelId,
+                        message: messageId
+                    });
+                } else {
+                    ReplyStore.set(reply.channel_id, reply.id, {
+                        state: ReferencedMessageState.Loaded,
+                        message: createMessageRecord(reply)
+                    });
+
+                    FluxDispatcher.dispatch({
+                        type: "MESSAGE_UPDATE",
+                        message: reply
+                    });
+                }
+            })
+            .catch(() => { })
+            .finally(() => {
+                fetching.delete(messageId);
             });
-        }).finally(() => {
-            fetching.delete(message);
-        });
     }
 });
