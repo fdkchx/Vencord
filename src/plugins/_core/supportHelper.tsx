@@ -16,6 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+import { definePluginSettings } from "@api/Settings";
 import ErrorBoundary from "@components/ErrorBoundary";
 import { Link } from "@components/Link";
 import { openUpdaterModal } from "@components/VencordSettings/UpdaterTab";
@@ -24,14 +25,14 @@ import { Margins } from "@utils/margins";
 import { isPluginDev } from "@utils/misc";
 import { relaunch } from "@utils/native";
 import { makeCodeblock } from "@utils/text";
-import definePlugin from "@utils/types";
+import definePlugin, { OptionType } from "@utils/types";
 import { isOutdated, update } from "@utils/updater";
 import { Alerts, Card, ChannelStore, Forms, GuildMemberStore, NavigationRouter, Parser, RelationshipStore, UserStore } from "@webpack/common";
 
 import gitHash from "~git-hash";
 import plugins from "~plugins";
 
-import settings from "./settings";
+import settingsPlugin from "./settings";
 
 const VENCORD_GUILD_ID = "1015060230222131221";
 
@@ -41,6 +42,13 @@ const AllowedChannelIds = [
     "1033680203433660458", // Vencord > #v
 ];
 
+const settings = definePluginSettings({
+    debugCommandEverywhere: {
+        type: OptionType.BOOLEAN,
+        description: "Enable the /vencord-debug command in all channels",
+        default: false
+    }
+});
 const TrustedRolesIds = [
     "1026534353167208489", // contributor
     "1026504932959977532", // regular
@@ -53,6 +61,7 @@ export default definePlugin({
     description: "Helps us provide support to you",
     authors: [Devs.Ven],
     dependencies: ["CommandsAPI"],
+    settings,
 
     patches: [{
         find: ".BEGINNING_DM.format",
@@ -65,7 +74,7 @@ export default definePlugin({
     commands: [{
         name: "vencord-debug",
         description: "Send Vencord Debug info",
-        predicate: ctx => AllowedChannelIds.includes(ctx.channel.id),
+        predicate: ctx => AllowedChannelIds.includes(ctx.channel.id) || settings.store.debugCommandEverywhere,
         async execute() {
             const { RELEASE_CHANNEL } = window.GLOBAL_ENV;
 
@@ -86,7 +95,7 @@ export default definePlugin({
             const info = {
                 Vencord:
                     `v${VERSION} • [${gitHash}](<https://github.com/Vendicated/Vencord/commit/${gitHash}>)` +
-                    `${settings.additionalInfo} - ${Intl.DateTimeFormat("en-GB", { dateStyle: "medium" }).format(BUILD_TIMESTAMP)}`,
+                    `${settingsPlugin.additionalInfo} - ${Intl.DateTimeFormat("en-GB", { dateStyle: "medium" }).format(BUILD_TIMESTAMP)}`,
                 Client: `${RELEASE_CHANNEL} ~ ${client}`,
                 Platform: window.navigator.platform
             };
@@ -103,7 +112,7 @@ ${makeCodeblock(enabledPlugins.join(", "))}
 `;
 
             return {
-                content: debugInfo.trim().replaceAll("```\n", "```")
+                content: debugInfo.trim().replaceAll("```\n", "```"),
             };
         }
     }],
@@ -111,6 +120,22 @@ ${makeCodeblock(enabledPlugins.join(", "))}
     flux: {
         async CHANNEL_SELECT({ channelId }) {
             if (channelId !== SUPPORT_CHANNEL_ID) return;
+
+            if (IS_DEV) return Alerts.show({
+                title: "You are entering the support channel!",
+                body: <div>
+                    <style>
+                        {'[class*="backdrop_"][style*="backdrop-filter"]{backdrop-filter:blur(16px) brightness(0.25) !important;}'}
+                    </style>
+                    <Forms.FormText>Are you sure you want to do this?</Forms.FormText>
+                    <Forms.FormText>The support channel is full of brainrotted idiots,</Forms.FormText>
+                    <Forms.FormText>potentially including you!</Forms.FormText>
+                    <Forms.FormText>Are you sure you're up to date with upstream?</Forms.FormText>
+                    <Forms.FormText>Are you ready to endure other people's brainrot?</Forms.FormText>
+                </div>,
+                confirmText: "Get mental health support",
+                onConfirm: () => history.back()
+            });
 
             const selfId = UserStore.getCurrentUser()?.id;
             if (!selfId || isPluginDev(selfId)) return;

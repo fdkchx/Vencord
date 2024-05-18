@@ -18,19 +18,22 @@
 
 import "./index.css";
 
+import { CssSnippet, getSnippetItem, setEnabled, setSnippetItem, sortSnippets, useCssSnippets } from "@api/CSSSnippets";
 import { openNotificationLogModal } from "@api/Notifications/notificationLog";
 import { Settings, useSettings } from "@api/Settings";
 import ErrorBoundary from "@components/ErrorBoundary";
 import { Devs } from "@utils/constants";
+import { pluralise } from "@utils/misc";
 import definePlugin from "@utils/types";
 import { findExportedComponentLazy } from "@webpack";
-import { Menu, Popout, useState } from "@webpack/common";
+import { Menu, Popout, SettingsRouter, useState } from "@webpack/common";
 import type { ReactNode } from "react";
 
 const HeaderBarIcon = findExportedComponentLazy("Icon", "Divider");
 
 function VencordPopout(onClose: () => void) {
     const { useQuickCss } = useSettings(["useQuickCss"]);
+    const cssSnippets = useCssSnippets();
 
     const pluginEntries = [] as ReactNode[];
 
@@ -81,6 +84,33 @@ function VencordPopout(onClose: () => void) {
                 label="Open QuickCSS"
                 action={() => VencordNative.quickCss.openEditor()}
             />
+            {cssSnippets && <Menu.MenuItem
+                id="vc-toolbox-css-snippets"
+                label="CSS Snippets"
+                action={() => {
+                    SettingsRouter.open("VencordThemes");
+                }}
+                subtext={cssSnippets.enabled ? (cssSnippets.list.length ? `${cssSnippets.list.filter(s => s.enabled).length}/${pluralise(cssSnippets.list.length, "snippet")} enabled` : "No snippets available") : "Disabled"}
+            >
+                <Menu.MenuCheckboxItem
+                    id="vc-toolbox-css-snippets-toggle"
+                    checked={cssSnippets.enabled!}
+                    label={"Enable CSS Snippets"}
+                    action={() => setEnabled(!cssSnippets.enabled)}
+                />
+                <Menu.MenuGroup>
+                    {...sortSnippets(cssSnippets.list).map(snippet => <Menu.MenuCheckboxItem
+                        id={"vc-toolbox-css-snippet-" + snippet.id}
+                        checked={snippet.enabled}
+                        label={snippet.name}
+                        subtext={snippet.description}
+                        action={async () => {
+                            const currentSnippet: CssSnippet | {} = (await getSnippetItem(snippet.id)) || {};
+                            setSnippetItem({ ...snippet, ...currentSnippet, enabled: !snippet.enabled });
+                        }}
+                    />)!}
+                </Menu.MenuGroup>
+            </Menu.MenuItem>}
             {...pluginEntries}
         </Menu.Menu>
     );

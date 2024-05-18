@@ -1,8 +1,6 @@
 name: Build DevBuild
 on:
     push:
-        branches:
-            - main
         paths:
             - .github/workflows/build.yml
             - src/**
@@ -48,15 +46,23 @@ jobs:
               id: release_values
               run: |
                   echo "release_tag=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+                  echo "branch_name=$(git rev-parse --abbrev-ref HEAD)" >> $GITHUB_ENV
+                  echo "commit_ref=$(git rev-parse HEAD)" >> $GITHUB_ENV
+                  echo "build_timestamp=$(date +%s)" >> $GITHUB_ENV
 
             - name: Upload DevBuild as release
-              if: github.repository == 'Vendicated/Vencord'
+              if: ${{ github.repository == 'Sqaaakoi/Vencord' }}
               run: |
-                  gh release upload devbuild --clobber dist/*
-                  gh release edit devbuild --title "DevBuild $RELEASE_TAG"
+                  gh release create "${BUILD_TIMESTAMP}+${BRANCH_NAME}" -d --target "${COMMIT_REF}" ${RELEASE_TYPE} --title "DevBuild $RELEASE_TAG $BRANCH_NAME"
+                  gh release upload "${BUILD_TIMESTAMP}+${BRANCH_NAME}" --clobber dist/*
+                  gh release edit "${BUILD_TIMESTAMP}+${BRANCH_NAME}" --draft=false ${RELEASE_TYPE}
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                   RELEASE_TAG: ${{ env.release_tag }}
+                  BRANCH_NAME: ${{ env.branch_name }}
+                  COMMIT_REF: ${{ env.commit_ref }}
+                  BUILD_TIMESTAMP: ${{ env.build_timestamp }}
+                  RELEASE_TYPE: ${{ github.ref == 'refs/heads/sqaaakoi-stable' && '--latest' || '--prerelease' }}
 
             - name: Upload DevBuild to builds repo
               if: github.repository == 'Vendicated/Vencord'

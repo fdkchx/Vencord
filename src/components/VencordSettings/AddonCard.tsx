@@ -39,9 +39,10 @@ interface Props {
     infoButton?: ReactNode;
     footer?: ReactNode;
     author?: ReactNode;
+    lastEdited?: ReactNode;
 }
 
-export function AddonCard({ disabled, isNew, name, infoButton, footer, author, enabled, setEnabled, description, onMouseEnter, onMouseLeave }: Props) {
+export function AddonCard({ disabled, isNew, name, infoButton, footer, author, lastEdited, enabled, setEnabled, description, onMouseEnter, onMouseLeave }: Props) {
     const titleRef = useRef<HTMLDivElement>(null);
     const titleContainerRef = useRef<HTMLDivElement>(null);
     return (
@@ -72,6 +73,11 @@ export function AddonCard({ disabled, isNew, name, infoButton, footer, author, e
                     {!!author && (
                         <Text variant="text-md/normal" className={cl("author")}>
                             {author}
+                        </Text>
+                    )}
+                    {!!lastEdited && (
+                        <Text variant="text-md/normal" className={cl("last-edited")}>
+                            {lastEdited}
                         </Text>
                     )}
                 </div>

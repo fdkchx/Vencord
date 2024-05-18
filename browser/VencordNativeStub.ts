@@ -27,6 +27,7 @@ import { EXTENSION_BASE_URL } from "../src/utils/web-metadata";
 import { getTheme, Theme } from "../src/utils/discord";
 import { getThemeInfo } from "../src/main/themes";
 import { Settings } from "../src/Vencord";
+import { CssSnippet, CssSnippets, getSnippetItem, setSnippetItem } from "@api/CSSSnippets";
 
 // Discord deletes this so need to store in variable
 const { localStorage } = window;
@@ -93,6 +94,42 @@ window.VencordNative = {
                     : "vs-dark";
 
             win.document.write(IS_EXTENSION ? monacoHtmlLocal : monacoHtmlCdn);
+            win.startEditor("");
+        },
+    },
+
+    cssSnippets: {
+        getRawData: async () => JSON.stringify(await DataStore.get("VencordCssSnippets").then(s => s ?? null)),
+        setRawData: async (data: string) => {
+            await DataStore.set("VencordCssSnippets", JSON.parse(data));
+        },
+        async editSnippet(id: string) {
+            const features = `popup,width=${Math.min(window.innerWidth, 1000)},height=${Math.min(window.innerHeight, 1000)}`;
+            const win = open("about:blank", "VencordCssSnippet-" + id, features);
+            if (!win) {
+                alert("Failed to open CSS editor popup. Make sure to allow popups!");
+                return;
+            }
+
+            const getCurrentData = async () => (await getSnippetItem(id))!;
+
+            const setSnippetCss = debounce(async (css: string) => setSnippetItem({
+                ...(await getCurrentData()),
+                lastEdited: new Date().toISOString(),
+                css
+            }));
+
+            win.baseUrl = EXTENSION_BASE_URL;
+            win.setCss = setSnippetCss;
+            win.getCurrentCss = getCurrentData;
+            win.getTheme = () =>
+                getTheme() === Theme.Light
+                    ? "vs-light"
+                    : "vs-dark";
+
+            win.document.write(IS_EXTENSION ? monacoHtmlLocal : monacoHtmlCdn);
+            win.document.title = "Vencord CSS Snippet Editor";
+            win.startEditor("");
         },
     },
 

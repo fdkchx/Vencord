@@ -16,21 +16,23 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+import { CssSnippet, deleteSnippet, getData, getSnippetItem, setSnippetItem, sortSnippets, useCssSnippets } from "@api/CSSSnippets";
 import { useSettings } from "@api/Settings";
 import { classNameFactory } from "@api/Styles";
 import { Flex } from "@components/Flex";
-import { DeleteIcon } from "@components/Icons";
+import { CogWheel, DeleteIcon } from "@components/Icons";
 import { Link } from "@components/Link";
 import PluginModal from "@components/PluginSettings/PluginModal";
+import { Switch } from "@components/Switch";
 import type { UserThemeHeader } from "@main/themes";
 import { openInviteModal } from "@utils/discord";
 import { Margins } from "@utils/margins";
 import { classes } from "@utils/misc";
-import { openModal } from "@utils/modal";
+import { ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalProps, ModalRoot, ModalSize, openModal } from "@utils/modal";
 import { showItemInFolder } from "@utils/native";
 import { useAwaiter } from "@utils/react";
 import { findByPropsLazy, findLazy } from "@webpack";
-import { Button, Card, Forms, React, showToast, TabBar, TextArea, useEffect, useRef, useState } from "@webpack/common";
+import { Button, Card, Forms, React, showToast, SnowflakeUtils, TabBar, Text, TextArea, TextInput, useEffect, useRef, useState } from "@webpack/common";
 import type { ComponentType, Ref, SyntheticEvent } from "react";
 
 import { AddonCard } from "./AddonCard";
@@ -110,6 +112,7 @@ function ThemeCard({ theme, enabled, onChange, onDelete }: ThemeCardProps) {
             name={theme.name}
             description={theme.description}
             author={theme.author}
+            lastEdited={theme.author}
             enabled={enabled}
             setEnabled={onChange}
             infoButton={
@@ -140,7 +143,100 @@ function ThemeCard({ theme, enabled, onChange, onDelete }: ThemeCardProps) {
     );
 }
 
+function SnippetCard(snippet: CssSnippet) {
+    return (
+        <AddonCard
+            name={snippet.name}
+            description={snippet.description}
+            lastEdited={new Date(snippet.lastEdited).toString()}
+            enabled={snippet.enabled}
+            setEnabled={enabled => setSnippetItem({ ...snippet, enabled })}
+            infoButton={
+                <div style={{ cursor: "pointer" }} onClick={() => openModal(modalProps =>
+                    <SnippetModal modalProps={modalProps} snippet={snippet} />
+                )}>
+                    <CogWheel />
+                </div>
+            }
+        />
+    );
+}
+
+function SnippetModal({ modalProps, snippet, onApply, isNew }: { modalProps: ModalProps, snippet: CssSnippet; onApply?: () => void; isNew?: boolean; }) {
+    const [enabled, setEnabled] = useState(snippet.enabled);
+    const [name, setName] = useState(snippet.name);
+    const [description, setDescription] = useState(snippet.description);
+    const [css, setCss] = useState(snippet.css);
+    const applySnippet = async () => {
+        const currentSnippet: CssSnippet | {} = (await getSnippetItem(snippet.id)) || {};
+        setSnippetItem({ ...snippet, ...currentSnippet, enabled, name, description, lastEdited: new Date().toISOString(), css });
+        onApply && onApply();
+    };
+    return <ModalRoot {...modalProps} size={ModalSize.LARGE}>
+        <ModalHeader>
+            {/* style={{ margin: 0 }} */}
+            <Text variant="heading-lg/semibold" style={{ flexGrow: 1 }}>{isNew ? "Create New Snippet" : "Edit Snippet"}</Text>
+            <Switch checked={enabled} onChange={v => setEnabled(v)} />
+            <ModalCloseButton onClick={modalProps.onClose} />
+        </ModalHeader>
+        <ModalContent>
+            <Forms.FormSection>
+                <Forms.FormTitle>Name</Forms.FormTitle>
+                <TextInput
+                    type="text"
+                    value={name}
+                    onChange={v => setName(v)}
+                    maxLength={120}
+                />
+                <Forms.FormTitle>Description</Forms.FormTitle>
+                <TextArea
+                    type="text"
+                    value={description}
+                    onChange={v => setDescription(v)}
+                    rows={2}
+                />
+                <Forms.FormTitle>CSS</Forms.FormTitle>
+                <TextArea
+                    className={cl("snippet-editor")}
+                    type="text"
+                    value={css}
+                    onChange={v => setCss(v)}
+                    rows={15}
+                    spellCheck={false}
+                />
+            </Forms.FormSection>
+            {/* <Button style={{ width: "100%" }} onClick={() => VencordNative.cssSnippets.editSnippet(snippet.id)}>
+                Open CSS Editor
+            </Button> */}
+        </ModalContent>
+        <ModalFooter>
+            <Flex>
+                <Button color={Button.Colors.PRIMARY} onClick={async () => {
+                    await applySnippet();
+                }}>
+                    Apply
+                </Button>
+                <Button onClick={async () => {
+                    await applySnippet();
+                    modalProps.onClose();
+                }}>
+                    Save Snippet
+                </Button>
+            </Flex>
+            <Flex>
+                <Button color={Button.Colors.RED} onClick={() => {
+                    deleteSnippet(snippet.id);
+                    modalProps.onClose();
+                }}>
+                    Delete Snippet
+                </Button>
+            </Flex>
+        </ModalFooter>
+    </ModalRoot>;
+}
+
 enum ThemeTab {
+    CSS_SNIPPETS,
     LOCAL,
     ONLINE
 }
@@ -149,13 +245,15 @@ function ThemesTab() {
     const settings = useSettings(["themeLinks", "enabledThemes"]);
 
     const fileInputRef = useRef<HTMLInputElement>(null);
-    const [currentTab, setCurrentTab] = useState(ThemeTab.LOCAL);
+    const [currentTab, setCurrentTab] = useState(ThemeTab.CSS_SNIPPETS);
     const [themeText, setThemeText] = useState(settings.themeLinks.join("\n"));
     const [userThemes, setUserThemes] = useState<UserThemeHeader[] | null>(null);
+    const cssSnippets = useCssSnippets();
     const [themeDir, , themeDirPending] = useAwaiter(VencordNative.themes.getThemesDir);
 
     useEffect(() => {
         refreshLocalThemes();
+        getData();
     }, []);
 
     async function refreshLocalThemes() {
@@ -288,6 +386,71 @@ function ThemesTab() {
         );
     }
 
+    function renderCssSnippets() {
+        return (
+            <>
+                <Forms.FormSection title="CSS Snippets">
+                    <Card className="vc-settings-quick-actions-card">
+                        <>
+                            <Button
+                                onClick={async () => {
+                                    const snippet: CssSnippet = {
+                                        id: SnowflakeUtils.fromTimestamp(Date.now()),
+                                        name: "New CSS Snippet",
+                                        description: "",
+                                        lastEdited: new Date().toISOString(),
+                                        createdAt: new Date().toISOString(),
+                                        origin: null,
+                                        enabled: true,
+                                        css: ""
+                                    };
+                                    openModal(modalProps =>
+                                        <SnippetModal modalProps={modalProps} snippet={snippet} isNew={true} />
+                                    );
+                                }}
+                                size={Button.Sizes.SMALL}
+                            >
+                                Create New Snippet
+                            </Button>
+                            <Button
+                                onClick={async () => {
+                                    const snippet: CssSnippet = {
+                                        id: SnowflakeUtils.fromTimestamp(Date.now()),
+                                        name: `Quick CSS ${new Date().toDateString()}`,
+                                        description: "Imported from QuickCSS",
+                                        lastEdited: new Date().toISOString(),
+                                        createdAt: new Date().toISOString(),
+                                        origin: "quickcss",
+                                        enabled: Vencord.Settings.useQuickCss,
+                                        css: await VencordNative.quickCss.get()
+                                    };
+                                    openModal(modalProps =>
+                                        <SnippetModal modalProps={modalProps} snippet={snippet} isNew={true} onApply={() => {
+                                            VencordNative.quickCss.set("");
+                                        }} />
+                                    );
+                                }}
+                                size={Button.Sizes.SMALL}
+                            >
+                                Import from QuickCSS
+                            </Button>
+                            <Button
+                                onClick={() => VencordNative.quickCss.openEditor()}
+                                size={Button.Sizes.SMALL}
+                            >
+                                {"Edit QuickCSS"}
+                            </Button>
+                        </>
+                    </Card>
+
+                    <div className={cl("grid")}>
+                        {cssSnippets && sortSnippets(cssSnippets.list).map(snippet => <SnippetCard {...snippet} />)}
+                    </div>
+                </Forms.FormSection>
+            </>
+        );
+    }
+
     // When the user leaves the online theme textbox, update the settings
     function onBlur() {
         settings.themeLinks = [...new Set(
@@ -341,6 +504,12 @@ function ThemesTab() {
                 </TabBar.Item>
                 <TabBar.Item
                     className="vc-settings-tab-bar-item"
+                    id={ThemeTab.CSS_SNIPPETS}
+                >
+                    CSS Snippets
+                </TabBar.Item>
+                <TabBar.Item
+                    className="vc-settings-tab-bar-item"
                     id={ThemeTab.ONLINE}
                 >
                     Online Themes
@@ -348,6 +517,7 @@ function ThemesTab() {
             </TabBar>
 
             {currentTab === ThemeTab.LOCAL && renderLocalThemes()}
+            {currentTab === ThemeTab.CSS_SNIPPETS && renderCssSnippets()}
             {currentTab === ThemeTab.ONLINE && renderOnlineThemes()}
         </SettingsTab>
     );

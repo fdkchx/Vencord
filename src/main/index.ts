@@ -17,7 +17,11 @@
 */
 
 import { app, protocol, session } from "electron";
+import { createReadStream } from "fs";
 import { join } from "path";
+import { PassThrough } from "stream";
+
+import monacoHtml from "~fileContent/monacoWin.html";
 
 import { ensureSafePath } from "./ipcMain";
 import { RendererSettings } from "./settings";
@@ -28,7 +32,7 @@ if (IS_VESKTOP || !IS_VANILLA) {
     app.whenReady().then(() => {
         // Source Maps! Maybe there's a better way but since the renderer is executed
         // from a string I don't think any other form of sourcemaps would work
-        protocol.registerFileProtocol("vencord", ({ url: unsafeUrl }, cb) => {
+        protocol.registerStreamProtocol("vencord", ({ url: unsafeUrl }, cb) => {
             let url = unsafeUrl.slice("vencord://".length);
             if (url.endsWith("/")) url = url.slice(0, -1);
             if (url.startsWith("/themes/")) {
@@ -38,7 +42,14 @@ if (IS_VESKTOP || !IS_VANILLA) {
                     cb({ statusCode: 403 });
                     return;
                 }
-                cb(safeUrl.replace(/\?v=\d+$/, ""));
+                cb(createReadStream(safeUrl.replace(/\?v=\d+$/, "")));
+                return;
+            }
+            if (url.startsWith("/monacoEditor")) {
+                const data = new PassThrough();
+                data.push(monacoHtml);
+                data.push(null);
+                cb(data);
                 return;
             }
             switch (url) {
@@ -48,7 +59,7 @@ if (IS_VESKTOP || !IS_VANILLA) {
                 case "vencordDesktopPreload.js.map":
                 case "patcher.js.map":
                 case "vencordDesktopMain.js.map":
-                    cb(join(__dirname, url));
+                    cb(createReadStream(join(__dirname, url)));
                     break;
                 default:
                     cb({ statusCode: 403 });
