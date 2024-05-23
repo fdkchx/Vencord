@@ -1,20 +1,8 @@
 /*
- * Vencord, a modification for Discord's desktop app
- * Copyright (c) 2023 Vendicated and contributors
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ * Vencord, a Discord client mod
+ * Copyright (c) 2024 Vendicated and contributors
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
 
 import { ApplicationCommandInputType, ApplicationCommandOptionType, findOption, sendBotMessage } from "@api/Commands";
 import { Devs } from "@utils/constants";
@@ -22,13 +10,19 @@ import definePlugin from "@utils/types";
 import { findByPropsLazy } from "@webpack";
 import { Constants, RestAPI, UserStore } from "@webpack/common";
 
-const FriendInvites = findByPropsLazy("createFriendInvite");
+import FriendInviteForm from "./components/FriendInviteForm";
+import QRCode from "./components/QRCodeButton";
+
+export const FriendInvites = findByPropsLazy("createFriendInvite");
+
+export let InviteRow = (props: any) => null as unknown as JSX.Element;
+
 const { uuid4 } = findByPropsLazy("uuid4");
 
 export default definePlugin({
     name: "FriendInvites",
     description: "Create and manage friend invite links via slash commands (/create friend invite, /view friend invites, /revoke friend invites).",
-    authors: [Devs.afn, Devs.Dziurwa],
+    authors: [Devs.afn, Devs.Dziurwa, Devs.Sqaaakoi],
     dependencies: ["CommandsAPI"],
     commands: [
         {
@@ -117,5 +111,41 @@ export default definePlugin({
                 });
             },
         },
-    ]
+    ],
+    patches: [
+        // Do not reorder these patches!
+        {
+            find: ".inviteSettingsInviteRow",
+            replacement: [
+                {
+                    match: /function\s(\i).{0,40}\{invite:/,
+                    replace: "$self.setInviteRowComponent($1);$&"
+                },
+                {
+                    match: /(null==\(\i=\i\.inviter\)\?)/,
+                    replace: "arguments[0].vencordFriendInvite?$self.QRCode({size:272,overlaySize:60,text:`https://${GLOBAL_ENV.INVITE_HOST}/${arguments[0].invite.code}`}):$1"
+                },
+                {
+                    match: /(grow:)(\i.INVITER,basis:)/,
+                    replace: "$1arguments[0].vencordFriendInvite?0:$2arguments[0].vencordFriendInvite?'auto':"
+                },
+                {
+                    match: /\(0,\i\.jsx\)\(\i\.default,\{className:\i\.revokeInvite,/,
+                    replace: "arguments[0].vencordFriendInvite||$&"
+                },
+            ]
+        },
+        {
+            find: "backToSchoolEnabled)()&&(0",
+            replacement: {
+                match: /(Messages\.ADD_FRIEND\}\),)(\(0,\i\.jsx\))\(i\.default,\{\}\)/,
+                replace: "$&,$2($self.FriendInviteForm,{})"
+            }
+        }
+    ],
+    setInviteRowComponent(c: () => JSX.Element) {
+        InviteRow = c;
+    },
+    FriendInviteForm,
+    QRCode
 });
