@@ -7,12 +7,9 @@
 import "./FriendInviteForm.css";
 
 import { Flex } from "@components/Flex";
-import { findComponentLazy } from "@webpack";
 import { Button, FluxDispatcher, Forms, useEffect, useState } from "@webpack/common";
 
 import { FriendInvites, InviteRow } from "..";
-
-const CountDown = findComponentLazy(m => m.prototype?.render?.toString().includes(".MAX_AGE_NEVER"));
 
 export default function FriendInviteForm(props: any) {
     const [invites, setInvites] = useState([] as any[]);
@@ -23,6 +20,14 @@ export default function FriendInviteForm(props: any) {
     };
     useEffect(() => {
         FriendInvites.getAllFriendInvites();
+    }, []);
+
+    useEffect(() => {
+        const onFriend = ({ relationship }) => relationship.type === 1 && FriendInvites.getAllFriendInvites();
+        FluxDispatcher.subscribe("RELATIONSHIP_ADD", onFriend);
+        return () => {
+            FluxDispatcher.unsubscribe("RELATIONSHIP_ADD", onFriend);
+        };
     }, []);
 
     useEffect(() => {
