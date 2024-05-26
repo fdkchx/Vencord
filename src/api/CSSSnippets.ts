@@ -120,7 +120,7 @@ export async function injectCssSnippets({ enabled, list: snippets }: CssSnippets
         const style = styles[i];
         const snippet = snippets.find(s => s.id === style.dataset.snippetId!);
         if (enabled && snippet?.enabled) {
-            style.innerText = snippet.css;
+            style.textContent = snippet.css;
             style.dataset.snippetName = snippet.name;
         } else {
             style.parentElement?.removeChild(style);
@@ -135,7 +135,7 @@ export async function injectCssSnippets({ enabled, list: snippets }: CssSnippets
         style.classList.add("vc-css-snippet");
         style.dataset.snippetId = snippet.id;
         style.dataset.snippetName = snippet.name;
-        style.innerText = snippet.css;
+        style.textContent = snippet.css;
         document.documentElement.appendChild(style);
     }
 }
