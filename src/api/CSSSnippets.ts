@@ -76,7 +76,11 @@ export async function writeData() {
     data = { ...data }; // required for react
     listeners.forEach(i => i());
     injectCssSnippets(data);
-    return await VencordNative.cssSnippets.setRawData(JSON.stringify(data, null, 4));
+    try {
+        return await VencordNative.cssSnippets.setRawData(JSON.stringify(data, null, 4));
+    } catch (e) {
+        return;
+    }
 }
 
 export async function getSnippetItem(id: string) {
