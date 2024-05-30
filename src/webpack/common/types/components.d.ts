@@ -325,6 +325,16 @@ export type Flex = ComponentType<PropsWithChildren<any>> & {
     Direction: Record<"VERTICAL" | "HORIZONTAL" | "HORIZONTAL_REVERSE", string>;
     Justify: Record<"START" | "END" | "CENTER" | "BETWEEN" | "AROUND", string>;
     Wrap: Record<"NO_WRAP" | "WRAP" | "WRAP_REVERSE", string>;
+    // not sure if these are perfect I only added these to replicate a built-in component
+    Child: ComponentType<PropsWithChildren<{
+        children?: ReactNode;
+        className?: string;
+        shrink?: CSSProperties["flexShrink"];
+        grow?: CSSProperties["flexGrow"];
+        basis?: CSSProperties["flexBasis"];
+        style?: CSSProperties;
+        wrap?: boolean;
+    }>>;
 };
 
 declare enum PopoutAnimation {
