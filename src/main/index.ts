@@ -17,11 +17,10 @@
 */
 
 import { app, protocol, session } from "electron";
+import monacoHtml from "file://monacoWin.html?minify&base64";
 import { createReadStream } from "fs";
 import { join } from "path";
 import { PassThrough } from "stream";
-
-import monacoHtml from "~fileContent/monacoWin.html";
 
 import { ensureSafePath } from "./ipcMain";
 import { RendererSettings } from "./settings";
