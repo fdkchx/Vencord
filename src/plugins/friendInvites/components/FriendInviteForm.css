@@ -1,3 +1,7 @@
 .vc-friend-invites {
     padding-top: 20px;
 }
+
+.vc-friend-invites-align-right {
+    text-align: end;
+}
