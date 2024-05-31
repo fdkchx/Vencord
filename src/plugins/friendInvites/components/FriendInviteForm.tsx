@@ -7,10 +7,12 @@
 import "./FriendInviteForm.css";
 
 import { Flex } from "@components/Flex";
+import { openModal } from "@utils/modal";
 import { findByPropsLazy } from "@webpack";
 import { Button, Flex as DiscordFlex, FluxDispatcher, Forms, i18n, useEffect, useState } from "@webpack/common";
 
 import { FriendInvites, InviteRow } from "..";
+import InviteModal from "./InviteModal";
 
 // Don't destructure these or it will explode don't ask me why
 const margins = findByPropsLazy("marginReset");
@@ -68,7 +70,14 @@ export default function FriendInviteForm(props: any) {
         <Flex flexDirection="row">
             <Button
                 onClick={() => {
-                    FriendInvites.createFriendInvite();
+                    FriendInvites.createFriendInvite().then(fi => openModal(props => <InviteModal
+                        props={props}
+                        invite={{
+                            code: fi.code,
+                            maxUses: fi.max_uses,
+                            maxAge: fi.max_age
+                        }}
+                    />));
                 }}
             >
                 Create Friend Invite
@@ -124,13 +133,14 @@ export default function FriendInviteForm(props: any) {
             </DiscordFlex>
             {invites.toSorted(
                 (a, b) => (new Date(b.expires_at) as unknown as number) - (new Date(a.expires_at) as unknown as number)
-            ).map((fi: { code: string; uses: number; max_uses: number; expires_at: string; }) =>
+            ).map((fi: { code: string; uses: number; max_uses: number; max_age: any; expires_at: string; }) =>
                 <InviteRow
                     vencordFriendInvite
                     invite={{
                         code: fi.code,
                         uses: fi.uses,
                         maxUses: fi.max_uses,
+                        maxAge: fi.max_age,
                         getExpiresAt: () => new Date(fi.expires_at)
                     }}
                 />

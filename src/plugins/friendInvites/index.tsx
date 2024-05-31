@@ -7,15 +7,19 @@
 import { ApplicationCommandInputType, ApplicationCommandOptionType, findOption, sendBotMessage } from "@api/Commands";
 import { Devs } from "@utils/constants";
 import definePlugin from "@utils/types";
-import { findByPropsLazy } from "@webpack";
+import { extractAndLoadChunksLazy, findByPropsLazy } from "@webpack";
 import { Constants, RestAPI, UserStore } from "@webpack/common";
 
 import FriendInviteForm from "./components/FriendInviteForm";
-import QRCode from "./components/QRCodeButton";
+import QRCodeButton from "./components/QRCodeButton";
 
 export const FriendInvites = findByPropsLazy("createFriendInvite");
 
 export let InviteRow = (props: any) => null as unknown as JSX.Element;
+
+// dependencies used elsewhere
+export const requireQRCode = extractAndLoadChunksLazy([".qrCodeButtonContent"]);
+export const requireInvite = extractAndLoadChunksLazy(["InstantInviteSources.SETTINGS_INVITE"]);
 
 const { uuid4 } = findByPropsLazy("uuid4");
 
@@ -123,7 +127,7 @@ export default definePlugin({
                 },
                 {
                     match: /(null==\(\i=\i\.inviter\)\?)/,
-                    replace: "arguments[0].vencordFriendInvite?$self.QRCode({size:272,overlaySize:60,text:`https://${GLOBAL_ENV.INVITE_HOST}/${arguments[0].invite.code}`}):$1"
+                    replace: "arguments[0].vencordFriendInvite?$self.QRCodeButton(arguments[0].invite):$1"
                 },
                 {
                     match: /(grow:)(\i.INVITER,basis:)/,
@@ -147,5 +151,5 @@ export default definePlugin({
         InviteRow = c;
     },
     FriendInviteForm,
-    QRCode
+    QRCodeButton
 });
