@@ -4,10 +4,11 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { ApplicationCommandInputType, sendBotMessage } from "@api/Commands";
+import { ApplicationCommandInputType, ApplicationCommandOptionType, findOption, sendBotMessage } from "@api/Commands";
 import { Devs } from "@utils/constants";
+import { sendMessage } from "@utils/discord";
 import definePlugin from "@utils/types";
-import { extractAndLoadChunksLazy, findByPropsLazy } from "@webpack";
+import { extractAndLoadChunksLazy, findByCodeLazy, findByPropsLazy } from "@webpack";
 
 import FriendInviteForm from "./components/FriendInviteForm";
 import QRCodeButton from "./components/QRCodeButton";
@@ -19,6 +20,7 @@ export let InviteRow = (props: any) => null as unknown as JSX.Element;
 // dependencies used elsewhere
 export const requireQRCode = extractAndLoadChunksLazy([".qrCodeButtonContent"]);
 export const requireInvite = extractAndLoadChunksLazy(["InstantInviteSources.SETTINGS_INVITE"]);
+export const linkify = findByCodeLazy("window.GLOBAL_ENV.INVITE_HOST", "/invite/");
 
 const { uuid4 } = findByPropsLazy("uuid4");
 
@@ -29,11 +31,19 @@ export default definePlugin({
     dependencies: ["CommandsAPI"],
     commands: [
         {
-            name: "create friend invite",
+            name: "friend-invites create",
             description: "Generates a friend invite link.",
             inputType: ApplicationCommandInputType.BOT,
+            options: [{
+                name: "send",
+                description: "Send invite to chat",
+                required: false,
+                type: ApplicationCommandOptionType.BOOLEAN
+            }],
 
-            execute: async (_, ctx) => {
+            execute: async (args, ctx) => {
+                const send = findOption<boolean>(args, "send", false);
+
                 const invite = await FriendInvites.createFriendInvite();
 
                 sendBotMessage(ctx.channel.id, {
@@ -43,10 +53,12 @@ export default definePlugin({
                         Max uses: \`${invite.max_uses}\`
                     `.trim().replace(/\s+/g, " ")
                 });
+
+                if (send) sendMessage(ctx.channel.id, { content: linkify(invite.code) });
             }
         },
         {
-            name: "view friend invites",
+            name: "friend-invites list",
             description: "View a list of all generated friend invites.",
             inputType: ApplicationCommandInputType.BOT,
             execute: async (_, ctx) => {
@@ -65,7 +77,7 @@ export default definePlugin({
             },
         },
         {
-            name: "revoke friend invites",
+            name: "friend-invites delete",
             description: "Revokes all generated friend invites.",
             inputType: ApplicationCommandInputType.BOT,
             execute: async (_, ctx) => {

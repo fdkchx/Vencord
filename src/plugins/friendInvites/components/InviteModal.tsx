@@ -7,12 +7,13 @@
 import "./InviteModal.css";
 
 import { ModalRoot, ModalSize } from "@utils/modal";
-import { findByCodeLazy, findByPropsLazy, findExportedComponentLazy } from "@webpack";
+import { findByPropsLazy, findExportedComponentLazy } from "@webpack";
 import { Forms } from "@webpack/common";
+
+import { linkify } from "..";
 
 const { QRCodeWithOverlay } = findByPropsLazy("QRCodeWithOverlay");
 const InviteCopyInput = findExportedComponentLazy("InviteCopyInput");
-const linkify = findByCodeLazy("window.GLOBAL_ENV.INVITE_HOST", "/invite/");
 
 export default function InviteModal({ props, invite }: { props: any; invite: any; }) {
     return <ModalRoot {...props} size={ModalSize.DYNAMIC}>
