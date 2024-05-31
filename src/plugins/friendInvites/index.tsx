@@ -6,16 +6,21 @@
 
 import { ApplicationCommandInputType, ApplicationCommandOptionType, findOption, sendBotMessage } from "@api/Commands";
 import { Devs } from "@utils/constants";
+import { sendMessage } from "@utils/discord";
 import definePlugin from "@utils/types";
-import { findByPropsLazy } from "@webpack";
-import { Constants, RestAPI, UserStore } from "@webpack/common";
+import { extractAndLoadChunksLazy, findByCodeLazy, findByPropsLazy } from "@webpack";
 
 import FriendInviteForm from "./components/FriendInviteForm";
-import QRCode from "./components/QRCodeButton";
+import QRCodeButton from "./components/QRCodeButton";
 
 export const FriendInvites = findByPropsLazy("createFriendInvite");
 
 export let InviteRow = (props: any) => null as unknown as JSX.Element;
+
+// dependencies used elsewhere
+export const requireQRCode = extractAndLoadChunksLazy([".qrCodeButtonContent"]);
+export const requireInvite = extractAndLoadChunksLazy(["InstantInviteSources.SETTINGS_INVITE"]);
+export const linkify = findByCodeLazy("window.GLOBAL_ENV.INVITE_HOST", "/invite/");
 
 const { uuid4 } = findByPropsLazy("uuid4");
 
@@ -26,50 +31,20 @@ export default definePlugin({
     dependencies: ["CommandsAPI"],
     commands: [
         {
-            name: "create friend invite",
+            name: "friend-invites create",
             description: "Generates a friend invite link.",
             inputType: ApplicationCommandInputType.BOT,
             options: [{
-                name: "Uses",
-                description: "How many uses?",
-                choices: [
-                    { label: "1", name: "1", value: "1" },
-                    { label: "5", name: "5", value: "5" }
-                ],
+                name: "send",
+                description: "Send invite to chat",
                 required: false,
-                type: ApplicationCommandOptionType.INTEGER
+                type: ApplicationCommandOptionType.BOOLEAN
             }],
 
             execute: async (args, ctx) => {
-                const uses = findOption<number>(args, "Uses", 5);
+                const send = findOption<boolean>(args, "send", false);
 
-                if (uses === 1 && !UserStore.getCurrentUser().phone)
-                    return sendBotMessage(ctx.channel.id, {
-                        content: "You need to have a phone number connected to your account to create a friend invite with 1 use!"
-                    });
-
-                let invite: any;
-                if (uses === 1) {
-                    const random = uuid4();
-                    const { body: { invite_suggestions } } = await RestAPI.post({
-                        url: Constants.Endpoints.FRIEND_FINDER,
-                        body: {
-                            modified_contacts: {
-                                [random]: [1, "", ""]
-                            },
-                            phone_contact_methods_count: 1
-                        }
-                    });
-                    invite = await FriendInvites.createFriendInvite({
-                        code: invite_suggestions[0][3],
-                        recipient_phone_number_or_email: random,
-                        contact_visibility: 1,
-                        filter_visibilities: [],
-                        filtered_invite_suggestions_index: 1
-                    });
-                } else {
-                    invite = await FriendInvites.createFriendInvite();
-                }
+                const invite = await FriendInvites.createFriendInvite();
 
                 sendBotMessage(ctx.channel.id, {
                     content: `
@@ -78,10 +53,12 @@ export default definePlugin({
                         Max uses: \`${invite.max_uses}\`
                     `.trim().replace(/\s+/g, " ")
                 });
+
+                if (send) sendMessage(ctx.channel.id, { content: linkify(invite.code) });
             }
         },
         {
-            name: "view friend invites",
+            name: "friend-invites list",
             description: "View a list of all generated friend invites.",
             inputType: ApplicationCommandInputType.BOT,
             execute: async (_, ctx) => {
@@ -100,7 +77,7 @@ export default definePlugin({
             },
         },
         {
-            name: "revoke friend invites",
+            name: "friend-invites delete",
             description: "Revokes all generated friend invites.",
             inputType: ApplicationCommandInputType.BOT,
             execute: async (_, ctx) => {
@@ -123,7 +100,7 @@ export default definePlugin({
                 },
                 {
                     match: /(null==\(\i=\i\.inviter\)\?)/,
-                    replace: "arguments[0].vencordFriendInvite?$self.QRCode({size:272,overlaySize:60,text:`https://${GLOBAL_ENV.INVITE_HOST}/${arguments[0].invite.code}`}):$1"
+                    replace: "arguments[0].vencordFriendInvite?$self.QRCodeButton(arguments[0].invite):$1"
                 },
                 {
                     match: /(grow:)(\i.INVITER,basis:)/,
@@ -147,5 +124,5 @@ export default definePlugin({
         InviteRow = c;
     },
     FriendInviteForm,
-    QRCode
+    QRCodeButton
 });
