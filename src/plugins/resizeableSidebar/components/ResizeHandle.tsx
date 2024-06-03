@@ -28,7 +28,7 @@ export default function ResizeHandle({ node }: { node: React.MutableRefObject<an
     });
     return <div className="vc-resizeable-sidebar-handle-wrapper">
         <div
-            onMouseDown={resizeHandler}
+            onMouseDown={e => e.button !== 2 && resizeHandler(e)}
             onContextMenu={() => {
                 node.current.style.width = "";
                 setImmediate(() => saveWidth(-1));
