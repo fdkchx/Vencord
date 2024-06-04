@@ -23,7 +23,7 @@ export const settings = definePluginSettings({
 });
 
 export default definePlugin({
-    name: "ResizeableSidebar",
+    name: "ResizableSidebar",
     description: "Adds a resize handle to the sidebar",
     authors: [Devs.Sqaaakoi],
     settings,
