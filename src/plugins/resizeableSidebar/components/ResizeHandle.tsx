@@ -26,14 +26,14 @@ export default function ResizeHandle({ node }: { node: React.MutableRefObject<an
         onElementResizeEnd: () => { },
         orientation: ResizeOrientation.HORIZONTAL_RIGHT
     });
-    return <div className="vc-resizeable-sidebar-handle-wrapper">
+    return <div className="vc-resizable-sidebar-handle-wrapper">
         <div
             onMouseDown={e => e.button !== 2 && resizeHandler(e)}
             onContextMenu={() => {
                 node.current.style.width = "";
                 setImmediate(() => saveWidth(-1));
             }}
-            className={classes("vc-resizeable-sidebar-handle", styles.resizeHandle)}
+            className={classes("vc-resizable-sidebar-handle", styles.resizeHandle)}
         />
     </div>;
 }

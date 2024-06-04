@@ -11,7 +11,7 @@ import { ReactNode } from "react";
 import ResizeHandle from "./ResizeHandle";
 
 export default function ResizeWrapper({ children, childRef }: { children: ReactNode; childRef: React.MutableRefObject<any>; }) {
-    return <div className="vc-resizeable-sidebar-wrapper">
+    return <div className="vc-resizable-sidebar-wrapper">
         {children}
         <ResizeHandle
             node={childRef}
