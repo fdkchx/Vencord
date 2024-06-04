@@ -11,10 +11,6 @@ This is a list of features in this fork.
 ## My plugins
 -   AutoMute
     -   Automatically mute yourself if you're silent for too long
-    -   Useful in case someone wants to talk to you in person and you forgot to mute.
--   ModViewBypass (PR submitted to upstream)
-    -   Allows you to view the experimental Guild Member Mod View sidebar menu without moderator permissions
-    -   Useful for telling if someone is a troll who joined and forgot about the guild for months.
 -   BetterQuickReact (PR submitted to upstream)
     -   Customise the emoji grid size visible in the message context menu
     -   Sort by frequently used instead of favourites first (originally developed by Vee)
@@ -26,12 +22,24 @@ This is a list of features in this fork.
     -   Customise the limit of jumbo emojis!
 -   MoreGuildDiscoveryCategories
     -   Adds the non-primary categories to the guild discovery sidebar
+-   CSS Snippets
+    -   Core feature; similar to Quick CSS but easier to manage multiple snippets of CSS
+-   NoDraftLengthLimit
+    -   Removes the ~4500 character limit for saved draft messages.
+-   ResizableSidebar
+    -   Resize the sidebar on the left of your screen.
+    -   Right click the invisible handle to reset it.
 ## My unmaintained plugins
 -   VoiceChannelLog (work in progress)
     -   Adds a log for voice channel join/leave/move events.
 -   VoiceJoinMessages (work in progress)
     -   Sends you notifications from your friends' DMs when they join a voice channel.
     -   Helpful if you forget to check in and see if your friends are all online in VC.
+    -   Useful in case someone wants to talk to you in person and you forgot to mute.
+-   ModViewBypass
+    -   Allows you to view the experimental Guild Member Mod View sidebar menu without moderator permissions
+    -   Useful for telling if someone is a troll who joined and forgot about the guild for months.
+    -   A PR was submitted to upstream, however it was closed as functionality was added to the ShowHiddenThings plugin. You should probably use that instead.
 ## Modified plugins
 -   WebKeybinds
     -   Compatibility with BetterChannelTabs
@@ -44,6 +52,14 @@ This is a list of features in this fork.
     -   Add an editor
     -   Add submenu to attachments + menu
     -   Add multiple tags with the same name
+-   FriendInvites
+    -   Add UI (can be buggy and crash due to webpack jank)
+    -   Renames commands to /friend-invites create|list|delete
+    -   Adds argument to send invite to chat when creating an invite using the create command
+-   MessageClickActions
+    -   When editing messages is off, double clicking will reply to your own message
+-   VencordToolbox
+    -   Add CSS snippets support
 ## Other non-mainline plugins
 -   (Better)ChannelTabs (modified)
     -   Custom fork of ChannelTabs that replaces the stock Discord titlebar
@@ -56,7 +72,15 @@ This is a list of features in this fork.
     -   Fixes "Message could not be loaded" upon hovering over the reply
     -   Developed by waresnew
     -   Upstream: https://github.com/waresnew/Vencord/tree/validReply
-
+-   ChineseWhispers
+    -   "Translate plugin but 20x more funny"
+    -   Developed by Samwich
+    -   Upstream: https://github.com/cheesesamwich/Tobleronecord/blob/main/src/tobleroneplugins/ChineseWhispers.ts
+    -   Includes a context menu toggle option and append original text setting that isn't included in upstream
+-   GifRoulette
+    -   Adds a command to send 1-5 random gifs from your favourites, and a one in ten chance to ping the owner of the server
+    -   Originally developed by Samwich as a joke from my suggestion; I've made it funnier (worse)
+    -   Upstream: https://github.com/cheesesamwich/Tobleronecord/blob/main/src/tobleroneplugins/GifRoulette.tsx
 
 ## Installing
 
