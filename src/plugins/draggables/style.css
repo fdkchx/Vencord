@@ -12,7 +12,7 @@
     border-radius: 2px;
 }
 
-.dragging-wrapper {
+.vc-dragging-wrapper {
     inset: 0;
     flex-direction: row;
 }
