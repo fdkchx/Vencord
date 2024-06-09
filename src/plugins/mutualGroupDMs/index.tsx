@@ -40,6 +40,10 @@ function getGroupDMName(channel: Channel) {
             .join(", ");
 }
 
+function useGroupDMs(userId: string) {
+    return useStateFromStores([ChannelStore], () => ChannelStore.getSortedPrivateChannels().filter(c => c.isGroupDM() && c.recipients.includes(userId)));
+}
+
 export default definePlugin({
     name: "MutualGroupDMs",
     description: "Shows mutual group dms in profiles",
@@ -65,12 +69,12 @@ export default definePlugin({
             group: true,
             replacement: [
                 {
-                    match: /(?<=let\{user:(\i),.{0,700})(?=return\(null!=)/,
-                    replace: "let vencordMutualGroupsCount=$self.useGDMCount($1.id);"
+                    match: /(?<=let\{user:(\i),.{0,20}=\i)/,
+                    replace: ",vencordMutualGroupsTabLabel=$self.useGDMCount($1.id)"
                 },
                 {
                     match: /(?<=(\i\.push)\(\{section:\i\.UserProfileSections\.MUTUAL_GUILDS,text:.{0,250}\}\)\)\}\))/,
-                    replace: ',$1({section:"MUTUAL_GDMS",text:vencordMutualGroupsCount})'
+                    replace: ',$1({section:"MUTUAL_GDMS",text:vencordMutualGroupsTabLabel})'
                 },
                 {
                     match: /(?<=(\i)===\i\.UserProfileSections\.MUTUAL_GUILDS?.{0,150}\}\):)/,
@@ -81,12 +85,12 @@ export default definePlugin({
     ],
 
     useGDMCount(userId: string) {
-        const state = useStateFromStores([ChannelStore], () => ChannelStore.getSortedPrivateChannels().filter(c => c.isGroupDM() && c.recipients.includes(userId))).length;
+        const state = useGroupDMs(userId).length;
         const label = "Mutual Group";
         return state > 0 ? pluralise(state, label) : `No ${label}s`;
     },
     renderMutualGDMs: ErrorBoundary.wrap(({ user, onClose }: { user: User, onClose: () => void; }) => {
-        const entries = ChannelStore.getSortedPrivateChannels().filter(c => c.isGroupDM() && c.recipients.includes(user.id)).map(c => (
+        const entries = useGroupDMs(user.id).map(c => (
             <Clickable
                 className={ProfileListClasses.listRow}
                 onClick={() => {
