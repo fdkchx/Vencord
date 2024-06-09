@@ -192,7 +192,7 @@ export default definePlugin({
             }
         })),
         // Banners
-        ...[".NITRO_BANNER,", /overrideBannerSrc:\i,profileType:/].map(find => ({
+        ...[".NITRO_BANNER,", "=!1,canUsePremiumCustomization:"].map(find => ({
             find,
             replacement: {
                 // style: { backgroundImage: shouldShowBanner ? "url(".concat(bannerUrl,
@@ -208,6 +208,14 @@ export default definePlugin({
             replacement: {
                 match: /(avatarWrapperNonUserBot.{0,50})onClick:(\i\|\|\i)\?void 0(?<=,avatarSrc:(\i).+?)/,
                 replace: "$1style:($2)?{cursor:\"pointer\"}:{},onClick:$2?()=>{$self.openImage($3)}"
+            }
+        },
+        {
+            find: ".canUsePremiumProfileCustomization,{avatarSrc:",
+            replacement: {
+                match: /children:\(0,\i\.jsx\)\(\i,{src:(\i)/,
+                replace: "style:{cursor:\"pointer\"},onClick:()=>{$self.openImage($1)},$&"
+
             }
         },
         // Group DMs top small & large icon
