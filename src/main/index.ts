@@ -16,9 +16,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { app, protocol, session } from "electron";
+import { app, net, protocol, session } from "electron";
 import monacoHtml from "file://monacoWin.html?minify&base64";
-import { createReadStream } from "fs";
+import { createReadStream, existsSync } from "fs";
 import { join } from "path";
 import { PassThrough } from "stream";
 
@@ -58,12 +58,29 @@ if (IS_VESKTOP || !IS_VANILLA) {
                 case "vencordDesktopPreload.js.map":
                 case "patcher.js.map":
                 case "vencordDesktopMain.js.map":
+                case "discord.html":
                     cb(createReadStream(join(__dirname, url)));
                     break;
                 default:
                     cb({ statusCode: 403 });
             }
         });
+
+        const exists = existsSync(join(__dirname, "discord.html"));
+        const domains = "canary.discord.com canary.discordapp.com ptb.discord.com ptb.discordapp.com discord.com discordapp.com".split(" ");
+        // @ts-ignore
+        const httpsHandler = req => {
+            console.log(req.url);
+            const { host, pathname } = new URL(req.url);
+            if (domains.includes(host) && ["/assets", "/api"].every(p => !pathname.startsWith(p)))
+                return net.fetch("vencord://discord.html");
+            protocol.unhandle("https");
+            while (protocol.isProtocolHandled("https")) { }
+            const res = net.fetch(req);
+            res.then(() => protocol.handle("https", httpsHandler));
+            return res;
+        };
+        exists && protocol.handle("https", httpsHandler);
 
         try {
             if (RendererSettings.store.enableReactDevtools)
