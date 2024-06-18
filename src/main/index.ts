@@ -17,6 +17,7 @@
 */
 
 import { app, net, protocol, session } from "electron";
+import { existsSync } from "fs";
 import { join } from "path";
 
 import { ensureSafePath } from "./ipcMain";
@@ -58,6 +59,7 @@ if (IS_VESKTOP || !IS_VANILLA) {
             }
         });
 
+        const exists = existsSync(join(__dirname, "discord.html"));
         const domains = "canary.discord.com canary.discordapp.com ptb.discord.com ptb.discordapp.com discord.com discordapp.com".split(" ");
         // @ts-ignore
         const httpsHandler = req => {
@@ -71,7 +73,7 @@ if (IS_VESKTOP || !IS_VANILLA) {
             res.then(() => protocol.handle("https", httpsHandler));
             return res;
         };
-        protocol.handle("https", httpsHandler);
+        exists && protocol.handle("https", httpsHandler);
 
         try {
             if (RendererSettings.store.enableReactDevtools)
