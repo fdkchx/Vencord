@@ -7,11 +7,12 @@
 import "./ResizeHandle.css";
 
 import { classes } from "@utils/misc";
-import { findByPropsLazy } from "@webpack";
+import { findByCodeLazy, findByPropsLazy } from "@webpack";
 
 import { settings } from "..";
 
-const { default: createResizeHandler, ResizeOrientation } = findByPropsLazy("ResizeOrientation");
+const ResizeOrientation = findByPropsLazy("HORIZONTAL_LEFT", "HORIZONTAL_RIGHT");
+const createResizeHandler = findByCodeLazy("initialElementDimension:", "removeEventListener");
 
 const styles = findByPropsLazy("resizeHandle", "chatLayerWrapper");
 
