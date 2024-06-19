@@ -68,18 +68,16 @@ if (IS_VESKTOP || !IS_VANILLA) {
 
         const exists = existsSync(join(__dirname, "discord.html"));
         const domains = "canary.discord.com canary.discordapp.com ptb.discord.com ptb.discordapp.com discord.com discordapp.com".split(" ");
-        // @ts-ignore
         const httpsHandler = req => {
             console.log(req.url);
             const { host, pathname } = new URL(req.url);
             if (domains.includes(host) && ["/assets", "/api"].every(p => !pathname.startsWith(p)))
+                // @ts-ignore
                 return net.fetch("vencord://discord.html");
-            protocol.unhandle("https");
-            while (protocol.isProtocolHandled("https")) { }
-            const res = net.fetch(req);
-            res.then(() => protocol.handle("https", httpsHandler));
-            return res;
+            // @ts-ignore
+            return net.fetch(req, { bypassCustomProtocolHandlers: true });
         };
+        // @ts-ignore
         exists && protocol.handle("https", httpsHandler);
 
         try {
