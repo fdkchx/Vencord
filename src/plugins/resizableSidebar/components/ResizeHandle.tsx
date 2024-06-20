@@ -11,7 +11,6 @@ import { findByCodeLazy, findByPropsLazy } from "@webpack";
 
 import { settings } from "..";
 
-const ResizeOrientation = findByPropsLazy("HORIZONTAL_LEFT", "HORIZONTAL_RIGHT");
 const createResizeHandler = findByCodeLazy("initialElementDimension:", "removeEventListener");
 
 const styles = findByPropsLazy("resizeHandle", "chatLayerWrapper");
@@ -25,7 +24,7 @@ export default function ResizeHandle({ node }: { node: React.MutableRefObject<an
         resizableDomNodeRef: node,
         onElementResize: saveWidth,
         onElementResizeEnd: () => { },
-        orientation: ResizeOrientation.HORIZONTAL_RIGHT
+        orientation: 3 // ugly horrible hard-coded value
     });
     return <div className="vc-resizable-sidebar-handle-wrapper">
         <div
