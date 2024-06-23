@@ -4,22 +4,15 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { ApplicationCommandInputType } from "@api/Commands";
 import { DataStore } from "@api/index";
-import { Flex } from "@components/Flex";
 import { Link } from "@components/Link";
-import { Devs } from "@utils/constants";
 import { closeModal, ModalContent, ModalFooter, ModalHeader, ModalProps, ModalRoot, ModalSize, openModal } from "@utils/modal";
-import definePlugin from "@utils/types";
-import { Button, Forms, RelationshipStore, Text, useEffect, useState } from "@webpack/common";
+import { Button, Flex, Forms, RelationshipStore, Text, useEffect, useState } from "@webpack/common";
 
-const CURRENT_WELCOME_NOTICE_VERSION = 1;
-const WELCOME_NOTICE_VERSION_KEY = "SqaaakoiForkSupport_StartupMessageVersion";
-
-const SQAAAKOI_USER_ID = Devs.Sqaaakoi.id + "";
+import { CURRENT_WELCOME_NOTICE_VERSION, SQAAAKOI_USER_ID, WELCOME_NOTICE_VERSION_KEY } from "./constants";
 
 // First time run card
-function WelcomeModal({ modalProps, close, isFriend }: { modalProps: ModalProps; close: () => void; isFriend: boolean; }) {
+export function WelcomeModal({ modalProps, close, isFriend }: { modalProps: ModalProps; close: () => void; isFriend: boolean; }) {
     const [unlocked, setUnlocked] = useState(false);
     const [closing, setClosing] = useState(false);
     useEffect(() => {
@@ -76,7 +69,7 @@ function WelcomeModal({ modalProps, close, isFriend }: { modalProps: ModalProps;
     </ModalRoot>;
 }
 
-async function openWelcomeModal(force: boolean) {
+export async function openWelcomeModal(force: boolean) {
     if (!force) {
         const currentVersion = (await DataStore.get<number>(WELCOME_NOTICE_VERSION_KEY)) || 0;
         if (currentVersion >= CURRENT_WELCOME_NOTICE_VERSION) return;
@@ -91,33 +84,3 @@ async function openWelcomeModal(force: boolean) {
         onCloseRequest: () => false
     });
 }
-
-export default definePlugin({
-    name: "SqaaakoiForkSupport",
-    required: true,
-    description: "Utility to assist users to use the fork properly",
-    authors: [Devs.Sqaaakoi],
-    dependencies: ["CommandsAPI", "MessageEventsAPI"],
-
-    WelcomeModal,
-    openWelcomeModal,
-
-    commands: [{
-        name: "welcome-modal",
-        description: "Show first time run modal",
-        inputType: ApplicationCommandInputType.BUILT_IN,
-        async execute() {
-            openWelcomeModal(true);
-        }
-    }],
-
-    flux: {
-        async POST_CONNECTION_OPEN() {
-            openWelcomeModal(false);
-        }
-    },
-
-    start() {
-        // fetch("https")
-    }
-});
