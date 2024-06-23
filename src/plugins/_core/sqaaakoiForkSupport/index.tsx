@@ -34,8 +34,4 @@ export default definePlugin({
             openWelcomeModal(false);
         }
     },
-
-    start() {
-        fetch("https");
-    }
 });
