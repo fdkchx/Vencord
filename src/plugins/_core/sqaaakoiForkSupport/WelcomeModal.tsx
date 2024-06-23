@@ -46,13 +46,6 @@ export function WelcomeModal({ modalProps, close, isFriend }: { modalProps: Moda
                     Please don't go bother any Vencord developers for bugs you experience here. It likely isn't their fault.
                 </Forms.FormText>
             </Forms.FormSection>
-            <br />
-            <Forms.FormSection>
-                <Forms.FormTitle>For Developers</Forms.FormTitle>
-                <Forms.FormText>
-                    All of the plugins and changes included in this fork are developed on <Link href="https://github.com/Sqaaakoi/Vencord/branches">their own branches</Link>, making it easy to merge into your own fork!
-                </Forms.FormText>
-            </Forms.FormSection>
         </ModalContent>
         <ModalFooter>
             <Flex flexDirection="row">
