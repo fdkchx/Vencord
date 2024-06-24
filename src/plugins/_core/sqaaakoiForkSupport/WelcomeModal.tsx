@@ -29,21 +29,27 @@ export function WelcomeModal({ modalProps, close, isFriend, force, welcomeBack, 
     }
 
 
-    return <ModalRoot {...modalProps} size={ModalSize.MEDIUM} >
+    return <ModalRoot {...modalProps} size={ModalSize.LARGE} >
         <ModalHeader>
             <Text variant="heading-lg/semibold" style={{ flexGrow: 1, textAlign: "center" }}>{welcomeBack ? WELCOME_BACK_HEADER : WELCOME_HEADER}</Text>
         </ModalHeader>
         <ModalContent>
             <div className={contentClass.content}>
-                {Parser.reactParserFor(defaultRules)(text, false)}
+                {Parser.parse(text, false)}
             </div>
         </ModalContent>
         <ModalFooter>
-            <Flex flexDirection="row">
+            <Flex flexDirection="column">
                 {/* <Forms.FormTitle>Run /welcome-modal to open this later</Forms.FormTitle> */}
                 <Button
-                    color={Button.Colors.GREEN}
                     submitting={closing}
+                    onClick={() => setClosing(true)}
+                >
+                    Open Settings
+                </Button>
+                <Button
+                    color={Button.Colors.GREEN}
+                    submitting={closing && !unlocked}
                     onClick={() => setClosing(true)}
                 >
                     Continue
@@ -54,8 +60,10 @@ export function WelcomeModal({ modalProps, close, isFriend, force, welcomeBack, 
 }
 
 export async function openWelcomeModal(force: boolean) {
+    let currentVersion;
     if (!force) {
-        const currentVersion = (await DataStore.get<number>(WELCOME_NOTICE_VERSION_KEY)) || 0;
+        currentVersion = (await DataStore.get<number>(WELCOME_NOTICE_VERSION_KEY));
+        currentVersion ??= 0;
         if (currentVersion >= CURRENT_WELCOME_NOTICE_VERSION) return;
     }
     await requireContentClass();
@@ -66,7 +74,7 @@ export async function openWelcomeModal(force: boolean) {
             close={() => closeModal(key)}
             isFriend={isFriend}
             force={force}
-            welcomeBack={currentVersion === 0 || force}
+            welcomeBack={force || currentVersion !== 0}
             text={WELCOME_MESSAGE(isFriend)}
         />
     ), {

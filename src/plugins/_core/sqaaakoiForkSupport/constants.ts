@@ -42,8 +42,11 @@ export const WELCOME_HEADER = "Welcome!";
 export const WELCOME_BACK_HEADER = "Whats New!";
 
 export const WELCOME_MESSAGE = friendsOnlyFilter`
-# Thanks for installing!
-You are running version ${gitHash}
+**👋 Thanks for installing!**
+
+You are running Sqaaakoi's Vencord fork! (commit ${gitHash})
+
+You are running version
 ${F`hi friend!`}
 ${N`not for friends`}
 1. a;
