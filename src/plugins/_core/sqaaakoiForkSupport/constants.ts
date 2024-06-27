@@ -6,7 +6,6 @@
 
 import { Devs } from "@utils/constants";
 
-import gitHash from "~git-hash";
 
 export const SQAAAKOI_USER_ID = Devs.Sqaaakoi.id + "";
 
@@ -20,7 +19,7 @@ const N = (strings: TemplateStringsArray, ...args: any[]) => [false, String.raw(
 // horrible
 function friendsOnlyFilter(_template: TemplateStringsArray, ..._substitutions: (string | [boolean, string])[]): (isFriend: boolean) => string {
     const substitutions = [..._substitutions];
-    const template = [..._template.raw];
+    const template = [..._template];
     return isFriend => {
         const out: string[] = [];
         if (template[0] === "\n") template.shift();
@@ -44,10 +43,9 @@ export const WELCOME_HEADER = "Welcome!";
 export const WELCOME_BACK_HEADER = "What's New";
 
 export const WELCOME_MESSAGE = friendsOnlyFilter`
-**👋 Thanks for installing Sqaaakoi's Vencord fork!** (commit ${gitHash})
+**👋 Please migrate to the sqaaakoi-stable-v2 branch**
 
-Some features are missing for now, as Discord made a major update recently that broke everything.
-I am working on reintroducing these features soon. Please don't bother other Vencord developers or staff about this; please make an issue at https://github.com/Sqaaakoi/Vencord/issues instead.
+Please run \`git checkout sqaaakoi-stable-v2\` and build using \`pnpm watch\`
 
 ${F`Thank you :)`}
 `;
