@@ -29,7 +29,7 @@ export function WelcomeModal({ modalProps, close, isFriend, force, welcomeBack, 
     }
 
 
-    return <ModalRoot {...modalProps} size={ModalSize.LARGE} >
+    return <ModalRoot {...modalProps} size={ModalSize.MEDIUM} >
         <ModalHeader>
             <Text variant="heading-lg/semibold" style={{ flexGrow: 1, textAlign: "center" }}>{welcomeBack ? WELCOME_BACK_HEADER : WELCOME_HEADER}</Text>
         </ModalHeader>
@@ -39,7 +39,7 @@ export function WelcomeModal({ modalProps, close, isFriend, force, welcomeBack, 
             </div>
         </ModalContent>
         <ModalFooter>
-            <Flex flexDirection="column">
+            <Flex direction={Flex.Direction.HORIZONTAL_REVERSE}>
                 <Button
                     color={Button.Colors.GREEN}
                     submitting={closing && !unlocked}

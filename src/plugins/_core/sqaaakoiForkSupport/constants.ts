@@ -41,12 +41,12 @@ function friendsOnlyFilter(_template: TemplateStringsArray, ..._substitutions: (
 }
 
 export const WELCOME_HEADER = "Welcome!";
-export const WELCOME_BACK_HEADER = "Whats New!";
+export const WELCOME_BACK_HEADER = "What's New";
 
 export const WELCOME_MESSAGE = friendsOnlyFilter`
 **👋 Thanks for installing Sqaaakoi's Vencord fork!** (commit ${gitHash})
 
-Some features are missing for now, as Discord made a major update last week that broke everything.
+Some features are missing for now, as Discord made a major update recently that broke everything.
 I am working on reintroducing these features soon. Please don't bother other Vencord developers or staff about this; please make an issue at https://github.com/Sqaaakoi/Vencord/issues instead.
 
 ${F`Thank you :)`}
