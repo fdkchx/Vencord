@@ -49,9 +49,5 @@ export const WELCOME_MESSAGE = friendsOnlyFilter`
 Some features are missing for now, as Discord made a major update last week that broke everything.
 I am working on reintroducing these features soon. Please don't bother other Vencord developers or staff about this; please make an issue at https://github.com/Sqaaakoi/Vencord/issues instead.
 
-${F`hi friend!`}${N`not for friends`}
-1. a;
-2. b;
-bleh: heart:
-a
+${F`Thank you :)`}
 `;
