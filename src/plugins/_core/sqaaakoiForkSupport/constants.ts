@@ -9,7 +9,7 @@ import { Devs } from "@utils/constants";
 
 export const SQAAAKOI_USER_ID = Devs.Sqaaakoi.id + "";
 
-export const CURRENT_WELCOME_NOTICE_VERSION = 1;
+export const CURRENT_WELCOME_NOTICE_VERSION = 0.5;
 export const WELCOME_NOTICE_VERSION_KEY = "SqaaakoiForkSupport_StartupMessageVersion";
 
 // friends or not
@@ -39,13 +39,15 @@ function friendsOnlyFilter(_template: TemplateStringsArray, ..._substitutions: (
     };
 }
 
-export const WELCOME_HEADER = "Welcome!";
-export const WELCOME_BACK_HEADER = "What's New";
+export const WELCOME_HEADER = "Important message";
+export const WELCOME_BACK_HEADER = "Reminder";
 
 export const WELCOME_MESSAGE = friendsOnlyFilter`
-**👋 Please migrate to the sqaaakoi-stable-v2 branch**
+**⚠️ Please migrate to the sqaaakoi-stable-v2 branch**
 
 Please run \`git checkout sqaaakoi-stable-v2\` and build using \`pnpm watch\`
+
+All further development of my Vencord fork will be on this branch.
 
 ${F`Thank you :)`}
 `;

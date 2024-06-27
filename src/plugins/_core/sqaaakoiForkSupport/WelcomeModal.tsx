@@ -57,7 +57,7 @@ export async function openWelcomeModal(force: boolean) {
     if (!force) {
         currentVersion = (await DataStore.get<number>(WELCOME_NOTICE_VERSION_KEY));
         currentVersion ??= 0;
-        if (currentVersion >= CURRENT_WELCOME_NOTICE_VERSION) return;
+        // if (currentVersion >= CURRENT_WELCOME_NOTICE_VERSION) return;
     }
     await requireContentClass();
     const isFriend = RelationshipStore.isFriend(SQAAAKOI_USER_ID);
